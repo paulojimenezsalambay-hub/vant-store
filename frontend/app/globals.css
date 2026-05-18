@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #0b0b0b;
+  --color-bone: #f4efe6;
+  --color-gold: #c9a96e;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bone);
+  color: var(--color-ink);
+}
+
+.display {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+}
+
+.hairline {
+  width: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center px-8 py-4 bg-ink text-bone tracking-widest uppercase text-xs hover:bg-opacity-90 transition-all;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center px-8 py-4 border border-ink text-ink tracking-widest uppercase text-xs hover:bg-ink hover:text-bone transition-all;
+}
