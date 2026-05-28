@@ -76,7 +76,7 @@
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://wa.me http://localhost:5678;
+  connect-src 'self' https://wa.me http://localhost:5680;
   form-action 'self' https://wa.me;
   frame-ancestors 'none';
   base-uri 'self';
@@ -4060,7 +4060,7 @@ function closeImgEditor(){}
 const IS_DEV = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 const PROD_API_BASE = 'https://api.vantstore.ec';       // ← tu Worker / proxy n8n
-const DEV_API_BASE  = 'http://localhost:5678/webhook-test';
+const DEV_API_BASE  = 'http://localhost:5680/webhook-test';
 
 const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
 

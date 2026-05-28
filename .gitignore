@@ -10,3 +10,7 @@ node_modules/
 
 # Credenciales — nunca en git
 CREDENCIALES.txt
+
+# Logs del servidor de pruebas
+test-emails.json
+test-whatsapps.json
