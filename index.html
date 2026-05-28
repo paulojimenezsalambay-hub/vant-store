@@ -4052,14 +4052,20 @@ function closeImgEditor(){}
 
 
 /* ============================================================
-   WEBHOOKS · Newsletter y Ofertas → n8n test mode
+   API BASE URL — detección automática dev / producción
+   DEV  (localhost)  → n8n local en modo test
+   PROD (Cloudflare) → Cloudflare Worker / túnel n8n público
+   Para producción cambia PROD_API_BASE a tu dominio real.
    ============================================================ */
-/* PRODUCCIÓN: cambiar localhost:5678 por tu URL de n8n en la nube
-   y /webhook-test/ por /webhook/ (requiere workflow activo, no en test mode).
-   Ejemplo: 'https://n8n.tudominio.com/webhook/suscribir-vant'
-   También actualizar connect-src en el CSP del <head>. */
-const WH_SUSCRIBIR = 'http://localhost:5678/webhook-test/suscribir-vant';
-const WH_OFERTAS   = 'http://localhost:5678/webhook-test/obtener-ofertas';
+const IS_DEV = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+const PROD_API_BASE = 'https://api.vantstore.ec';       // ← tu Worker / proxy n8n
+const DEV_API_BASE  = 'http://localhost:5678/webhook-test';
+
+const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
+
+const WH_SUSCRIBIR = `${API_BASE_URL}/suscribir-vant`;
+const WH_OFERTAS   = `${API_BASE_URL}/obtener-ofertas`;
 
 /**
  * enviarFormulario(event, url)

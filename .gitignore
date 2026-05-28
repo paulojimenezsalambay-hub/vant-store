@@ -3,3 +3,10 @@ Thumbs.db
 *.tmp
 *.log
 .claude/
+
+# Build
+dist/
+node_modules/
+
+# Credenciales — nunca en git
+CREDENCIALES.txt
