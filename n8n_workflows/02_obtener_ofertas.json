@@ -1,0 +1,147 @@
+{
+  "name": "02 — Productos y Ofertas · Datos en Tiempo Real (VANT Store)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "obtener-ofertas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook · GET obtener-ofertas",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "id": "wh-ofertas",
+      "webhookId": "obtener-ofertas"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "pageSize", "value": "100" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP · GET Productos Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "id": "http-airtable"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Transforma los registros de Airtable al formato que espera la landing:\n// { \"perfume-01\": { ID_Producto, Nombre, Precio_Original, ... }, ... }\nconst records = $input.first().json.records || [];\nconst productos = {};\nconst stockBajo = [];\n\nfor (const record of records) {\n  const f = record.fields || {};\n  const id = String(f.ID_Producto || '').trim();\n  if (!id) continue;\n\n  const stock = Number(f.Stock_Disponible) || 0;\n\n  productos[id] = {\n    ID_Producto:     id,\n    Nombre:          f.Nombre          || '',\n    Precio_Original: f.Precio_Original || 0,\n    Precio_Oferta:   f.Precio_Oferta   || 0,\n    En_Oferta:       Boolean(f.En_Oferta),\n    Etiqueta_Oferta: f.Etiqueta_Oferta || '',\n    Foto:            Array.isArray(f.Foto) ? f.Foto : [],\n    Stock_Disponible: stock\n  };\n\n  // Alerta: entre 1 y 4 unidades restantes\n  if (stock > 0 && stock < 5) {\n    stockBajo.push({ id, nombre: f.Nombre || id, stock });\n  }\n}\n\nreturn [{ json: { productos, stockBajo } }];"
+      },
+      "name": "Code · Transformar + Stock Bajo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "id": "code-transform"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.productos) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" },
+              { "name": "Cache-Control",               "value": "no-cache" }
+            ]
+          }
+        }
+      },
+      "name": "Respond · Productos al Browser",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 300],
+      "id": "resp-productos"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.stockBajo.length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "IF · Hay Stock Bajo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300],
+      "id": "if-stock-bajo"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "stockBajo",
+        "options": {}
+      },
+      "name": "Split · Productos Stock Bajo",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1340, 180],
+      "id": "split-stock"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.callmebot.com/whatsapp.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",  "value": "593999999999" },
+            { "name": "apikey", "value": "TU_CALLMEBOT_APIKEY" },
+            {
+              "name": "text",
+              "value": "={{ '⚠️ VANT Store · Stock bajo: ' + $json.nombre + ' (' + $json.id + ') — solo ' + $json.stock + ' unidades disponibles' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "CallMeBot · Alerta WhatsApp Dueño",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 180],
+      "id": "callmebot-alert"
+    }
+  ],
+  "connections": {
+    "Webhook · GET obtener-ofertas": {
+      "main": [[{ "node": "HTTP · GET Productos Airtable", "type": "main", "index": 0 }]]
+    },
+    "HTTP · GET Productos Airtable": {
+      "main": [[{ "node": "Code · Transformar + Stock Bajo", "type": "main", "index": 0 }]]
+    },
+    "Code · Transformar + Stock Bajo": {
+      "main": [[{ "node": "Respond · Productos al Browser", "type": "main", "index": 0 }]]
+    },
+    "Respond · Productos al Browser": {
+      "main": [[{ "node": "IF · Hay Stock Bajo", "type": "main", "index": 0 }]]
+    },
+    "IF · Hay Stock Bajo": {
+      "main": [
+        [{ "node": "Split · Productos Stock Bajo", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Split · Productos Stock Bajo": {
+      "main": [[{ "node": "CallMeBot · Alerta WhatsApp Dueño", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2.0.0"
+}

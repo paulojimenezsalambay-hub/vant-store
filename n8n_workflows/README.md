@@ -1,77 +1,106 @@
-# Workflows n8n · Olfativa AI
+# Workflows n8n · VANT Store
 
 Cuatro workflows JSON importables desde la UI de n8n (`Workflows → Import from File`).
+Alineados exactamente con la landing page y la estructura de Airtable actual.
 
-| # | Archivo | Disparador | Propósito |
-|---|---|---|---|
-| 01 | `01_lead_magnet_quiz_to_whatsapp.json` | Webhook quiz | Perfila al lead con GPT-4o, lo guarda en Airtable y envía recomendación por WhatsApp |
-| 02 | `02_cart_recovery_intelligent.json` | Webhook Shopify `checkouts/update` | Recupera carritos abandonados con oferta personalizada por IA (WhatsApp/Email) |
-| 03 | `03_post_sale_30day_replenish.json` | Webhook Shopify `orders/paid` + Cron diario | Predice fin del producto y envía magic link de recompra |
-| 04 | `04_inventory_sync_and_alerts.json` | Cron 6h | Sincroniza inventario con proveedor y alerta a Slack si stock bajo |
+| # | Archivo | Endpoint | Disparador | Propósito |
+|---|---------|----------|------------|-----------|
+| 01 | `01_suscribir_vant.json`  | `POST /suscribir-vant`    | Formulario newsletter/ofertas de la landing | Valida email, evita duplicados en Airtable `Suscriptores`, envía email bienvenida por Outlook |
+| 02 | `02_obtener_ofertas.json` | `GET /obtener-ofertas`    | Llamada GET desde browser (futuro) | Devuelve todos los productos con precios/fotos desde Airtable `Productos_Ofertas` + alerta CallMeBot si stock < 5 |
+| 03 | `03_actualizar_stock.json`| `POST /actualizar-stock`  | Dueño llama tras confirmar venta WhatsApp | Actualiza `Stock_Disponible` en Airtable + alerta si stock crítico |
+| 04 | `04_monitor_stock.json`   | Cron cada 6h              | Automático | Revisa todos los productos y envía alerta WhatsApp (CallMeBot) para agotados y bajo stock |
 
-## Variables de entorno requeridas en n8n
+---
+
+## Airtable — Tablas utilizadas
+
+### `Suscriptores` (ya existe)
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `Email` | Email | Clave única |
+| `Fecha_Suscripcion` | Date | Formato `yyyy-MM-dd` |
+| `Estado` | Single Select | Opciones: `Activo` / `Baja` — default `Activo` |
+
+### `Productos_Ofertas` (ya existe — 98 registros)
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| `ID_Producto` | Single line | Formato `perfume-01`..`perfume-98` |
+| `Nombre` | Single line | |
+| `Precio_Original` | Number | En USD |
+| `Precio_Oferta` | Number | En USD |
+| `En_Oferta` | Checkbox | |
+| `Etiqueta_Oferta` | Single line | Ej: "21% dto" |
+| `Foto` | Attachment | Adjunto — se extrae `thumbnails.large.url` |
+| `Stock_Disponible` | Number | Unidades disponibles |
+
+---
+
+## Credenciales que debes configurar en n8n
+
+### 1. Airtable Token API
+- En n8n: `Settings → Credentials → New → Airtable Token API`
+- Token: el que tienes en `CREDENCIALES.txt`
+- Base ID: `appkHx2y58OuG1UuF`
+
+### 2. Microsoft Outlook OAuth2 (WF01)
+- En n8n: `Settings → Credentials → New → Microsoft Outlook OAuth2`
+- Configura con tu cuenta de Microsoft siguiendo el flujo OAuth
+
+### 3. CallMeBot API Key (WF02, WF03, WF04)
+- En los nodos `CallMeBot · *`, reemplaza `TU_CALLMEBOT_APIKEY` con tu API key real
+- Para obtener la key: añade `+34 644 51 97 88` en WhatsApp y envía `I allow callmebot to send me messages`
+- El número destino ya está configurado: `593999999999`
+
+---
+
+## Cómo usar WF03 — Actualizar Stock
+
+Después de confirmar un pedido por WhatsApp, el dueño llama al webhook para actualizar el stock:
+
+```bash
+# Ejemplo: el perfume-15 vendió 2 unidades, quedan 3
+curl -X POST https://tu-n8n.com/webhook/actualizar-stock \
+  -H "Content-Type: application/json" \
+  -d '{"id_producto": "perfume-15", "stock_disponible": 3}'
+```
+
+O desde cualquier cliente HTTP (Postman, Insomnia, etc.).
+
+---
+
+## Endpoints en producción vs desarrollo
+
+| Entorno | URL base | Nota |
+|---------|----------|------|
+| Desarrollo | `http://localhost:5678/webhook-test/` | Requiere workflow en modo "Test" |
+| Producción | `https://tu-n8n.com/webhook/` | Requiere workflow activo (`Active: ON`) |
+
+La landing detecta el entorno automáticamente con `API_BASE_URL` en `index.html`.
+
+---
+
+## Diagrama de flujos
 
 ```
-WA_PHONE_NUMBER_ID          = ID del número WhatsApp Business en Meta
-SHOPIFY_DOMAIN              = tu-tienda.myshopify.com
-SHOPIFY_LOCATION_ID         = ID de la ubicación de inventario en Shopify
-PROVEEDOR_API_URL           = URL base de la API del proveedor
-```
+Landing page (vantstore.ec)
+│
+├── [Form Newsletter] POST /suscribir-vant ──▶ WF01
+│   └── Airtable Suscriptores ──▶ Outlook bienvenida
+│
+├── [Form Ofertas]    POST /suscribir-vant ──▶ WF01 (origen='ofertas')
+│   └── Airtable Suscriptores ──▶ Outlook ofertas
+│
+└── [Futuro: GET datos] GET /obtener-ofertas ──▶ WF02
+    └── Airtable Productos_Ofertas ──▶ JSON al browser
+        └── IF stock < 5 ──▶ CallMeBot ⚠️
 
-## Placeholders a reemplazar tras importar
+Dueño (manual)
+└── POST /actualizar-stock ──▶ WF03
+    └── Airtable PATCH Stock_Disponible
+        └── IF crítico ──▶ CallMeBot 🚨
 
-- `appXXXXXXXXXXXXXX` → Base ID de Airtable
-- `tblLeadsXXXXXXX` → Table ID de la tabla Leads
-- `tblProductosXXXX` → Table ID de la tabla Productos
-- `tblPedidosXXXXXX` → Table ID de la tabla Pedidos
-- `C0000OPSINV`, `C0000MGMTVIP` → IDs de canales Slack
-
-## Plantillas WhatsApp pre-aprobadas necesarias
-
-- `recomendacion_quiz` — Resultado del quiz
-- `recomendacion_quiz_reminder` — Recordatorio D+2 sin compra
-- `cart_recovery` — Carrito abandonado con oferta
-- `cart_recovery_final` — Último intento de recuperación
-- `replenishment_reminder` — Aviso de fin de producto con magic link
-
-## Convenciones
-
-- **Naming de webhooks** — kebab-case (`quiz-lead`, `cart-abandoned`, `order-paid`)
-- **Idempotencia** — todos los nodos Airtable usan `upsert` con `email` o `sku` como clave
-- **Error handling** — cada workflow debe enlazarse a un Error Workflow centralizado que avise a Slack `#alerts`
-- **Versionado** — exporta el JSON a Git tras cada cambio significativo
-
-## Diagrama lógico
-
-```
-┌─ Landing (Next.js) ────────────────┐
-│  Quiz submit → /api/quiz           │
-└──────────────┬─────────────────────┘
-               │ HTTPS POST
-               ▼
-       ┌───────────────┐
-       │  n8n WF 01    │ ◀─── OpenAI (perfilado)
-       │ Lead Magnet   │ ◀─── Airtable (Leads)
-       └───────┬───────┘ ───▶ WhatsApp Cloud API
-               │
-   ┌───────────┴───────────┐
-   ▼                       ▼
-Shopify (compra)      Lead sigue activo
-   │                       │
-   ▼                       ▼
-┌─────────┐         ┌─────────────┐
-│  WF 03  │         │  WF 02      │
-│Replenish│         │Cart Recovery│
-└────┬────┘         └──────┬──────┘
-     │                     │
-     └─────┬───────────────┘
-           ▼
-    Airtable CRM
-    (segmentación dinámica)
-
-┌─ WF 04 ──────────┐
-│ Cron 6h          │ ◀─ Proveedor REST
-│ Inventory Sync   │ ─▶ Shopify Admin API
-│                  │ ─▶ Slack alertas
-└──────────────────┘
+Automático (cron 6h)
+└── WF04
+    └── Airtable todos los productos
+        └── IF agotado/bajo ──▶ CallMeBot 🚨/⚠️
 ```

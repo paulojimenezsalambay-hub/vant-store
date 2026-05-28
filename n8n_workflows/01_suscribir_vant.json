@@ -1,0 +1,191 @@
+{
+  "name": "01 — Suscripción Newsletter y Ofertas · VANT Store",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "suscribir-vant",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook · POST suscribir-vant",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "id": "wh-suscribir",
+      "webhookId": "suscribir-vant"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// La landing envía Content-Type: text/plain con JSON en el body\n// n8n puede meterlo en body como string o parsearlo directamente\nconst raw = $input.item.json;\nlet data;\nif (typeof raw.body === 'string') {\n  try { data = JSON.parse(raw.body); } catch(e) { data = {}; }\n} else if (raw.body && typeof raw.body === 'object') {\n  data = raw.body;\n} else {\n  data = raw;\n}\nconst email  = String(data.email  || '').toLowerCase().trim();\nconst origen = String(data.origen || 'newsletter');\nreturn { json: { email, origen } };"
+      },
+      "name": "Code · Parsear Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "id": "code-parse"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.email }}",
+              "operation": "regex",
+              "value2": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+            }
+          ]
+        }
+      },
+      "name": "IF · Email Válido",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "id": "if-email"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": false, \"error\": \"Email inv\\u00e1lido\" }",
+        "options": { "responseCode": 400 }
+      },
+      "name": "Respond · Email Inválido",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 460],
+      "id": "resp-invalid"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Suscriptores",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filterByFormula",
+              "value": "={{ `LOWER({Email})='${$('Code · Parsear Body').item.json.email}'` }}"
+            },
+            { "name": "maxRecords", "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP · Buscar Suscriptor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 160],
+      "id": "http-search"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ ($json.records || []).length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "IF · Ya Suscrito",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 160],
+      "id": "if-duplicate"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": false, \"msg\": \"Ya eres parte del Club VANT\" }",
+        "options": {}
+      },
+      "name": "Respond · Ya Suscrito",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1340, 280],
+      "id": "resp-duplicate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Suscriptores",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Email: $('Code · Parsear Body').item.json.email, Fecha_Suscripcion: $now.toFormat('yyyy-MM-dd'), Estado: 'Activo' } }) }}",
+        "options": {}
+      },
+      "name": "HTTP · Crear Suscriptor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 60],
+      "id": "http-create"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Code · Parsear Body').item.json.email }}",
+        "subject": "={{ $('Code · Parsear Body').item.json.origen === 'ofertas' ? 'VANT Store — Tus ofertas exclusivas te esperan' : 'Bienvenido al Club VANT — Tu acceso exclusivo está activo' }}",
+        "bodyContent": "=<!DOCTYPE html><html lang=\"es\"><body style=\"margin:0;padding:0;background:#08070A;\"><div style=\"max-width:560px;margin:0 auto;padding:48px 32px;font-family:Georgia,serif;color:#F5F0E8;\"><p style=\"letter-spacing:5px;font-size:13px;color:#C9A96E;margin:0 0 32px;\">V<strong>A</strong>NT STORE</p><h1 style=\"font-weight:300;font-size:26px;line-height:1.5;margin:0 0 20px;\">{{ $('Code · Parsear Body').item.json.origen === 'ofertas' ? 'Tus ofertas exclusivas<br>están listas.' : 'Tu acceso al Club<br>ha sido activado.' }}</h1><p style=\"color:#A89070;line-height:1.8;margin:0 0 32px;\">{{ $('Code · Parsear Body').item.json.origen === 'ofertas' ? 'Recibirás selecciones de fragancias con precios especiales directamente aquí.' : 'Lanzamientos anticipados, ofertas privadas y guías olfativas curadas por nuestro equipo.' }}</p><a href=\"https://vantstore.ec\" style=\"display:inline-block;padding:14px 36px;background:#C9A96E;color:#08070A;text-decoration:none;letter-spacing:3px;font-size:11px;font-weight:700;\">EXPLORAR COLECCIÓN</a><p style=\"color:#4A4850;font-size:11px;margin-top:40px;line-height:1.8;\">VANT STORE · Perfumería de autor · Quito, Ecuador<br>Para cancelar tu suscripción responde \"Baja\" a este correo.</p></div></body></html>",
+        "bodyContentType": "html",
+        "additionalFields": {}
+      },
+      "name": "Outlook · Email Bienvenida",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [1560, 60],
+      "id": "outlook-welcome"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": true, \"msg\": \"\\u00a1Bienvenido al Club VANT!\" }",
+        "options": {}
+      },
+      "name": "Respond · OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1780, 60],
+      "id": "resp-ok"
+    }
+  ],
+  "connections": {
+    "Webhook · POST suscribir-vant": {
+      "main": [[{ "node": "Code · Parsear Body", "type": "main", "index": 0 }]]
+    },
+    "Code · Parsear Body": {
+      "main": [[{ "node": "IF · Email Válido", "type": "main", "index": 0 }]]
+    },
+    "IF · Email Válido": {
+      "main": [
+        [{ "node": "HTTP · Buscar Suscriptor", "type": "main", "index": 0 }],
+        [{ "node": "Respond · Email Inválido",  "type": "main", "index": 0 }]
+      ]
+    },
+    "HTTP · Buscar Suscriptor": {
+      "main": [[{ "node": "IF · Ya Suscrito", "type": "main", "index": 0 }]]
+    },
+    "IF · Ya Suscrito": {
+      "main": [
+        [{ "node": "Respond · Ya Suscrito",  "type": "main", "index": 0 }],
+        [{ "node": "HTTP · Crear Suscriptor", "type": "main", "index": 0 }]
+      ]
+    },
+    "HTTP · Crear Suscriptor": {
+      "main": [[{ "node": "Outlook · Email Bienvenida", "type": "main", "index": 0 }]]
+    },
+    "Outlook · Email Bienvenida": {
+      "main": [[{ "node": "Respond · OK", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2.0.0"
+}

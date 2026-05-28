@@ -1,0 +1,143 @@
+{
+  "name": "04 — Monitor Stock Automático · Alertas WhatsApp (VANT Store)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "hours", "hoursInterval": 6 }
+          ]
+        }
+      },
+      "name": "Cron · Cada 6 horas",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "id": "cron-6h"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "pageSize", "value": "100" },
+            {
+              "name": "fields[]",
+              "value": "ID_Producto"
+            },
+            {
+              "name": "fields[]",
+              "value": "Nombre"
+            },
+            {
+              "name": "fields[]",
+              "value": "Stock_Disponible"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP · GET Stock Todos los Productos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300],
+      "id": "http-stock-all"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Clasifica los productos en 'agotado' (stock=0) y 'bajo' (1-4 uds.)\nconst records = $input.first().json.records || [];\nconst alertas = [];\n\nfor (const record of records) {\n  const f     = record.fields || {};\n  const stock = Number(f.Stock_Disponible) || 0;\n  const id    = String(f.ID_Producto || '');\n  const nombre= String(f.Nombre     || id);\n\n  if (stock === 0) {\n    alertas.push({ id, nombre, stock, nivel: 'AGOTADO', emoji: '🚨' });\n  } else if (stock > 0 && stock < 5) {\n    alertas.push({ id, nombre, stock, nivel: 'bajo',    emoji: '⚠️' });\n  }\n}\n\nreturn [{ json: { alertas, total: alertas.length } }];"
+      },
+      "name": "Code · Clasificar Alertas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "id": "code-classify"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.total }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "IF · Hay Alertas",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "if-alertas"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "alertas",
+        "options": {}
+      },
+      "name": "Split · Una Alerta por Producto",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1120, 180],
+      "id": "split-alertas"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.callmebot.com/whatsapp.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",  "value": "593999999999" },
+            { "name": "apikey", "value": "TU_CALLMEBOT_APIKEY" },
+            {
+              "name": "text",
+              "value": "={{ $json.emoji + ' VANT Store [' + $json.nivel + ']: ' + $json.nombre + ' (' + $json.id + ') — ' + ($json.stock === 0 ? 'SIN STOCK, retirar de la web' : $json.stock + ' uds. quedan, reponer pronto') }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "name": "CallMeBot · WhatsApp Dueño",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 180],
+      "id": "callmebot-owner"
+    }
+  ],
+  "connections": {
+    "Cron · Cada 6 horas": {
+      "main": [[{ "node": "HTTP · GET Stock Todos los Productos", "type": "main", "index": 0 }]]
+    },
+    "HTTP · GET Stock Todos los Productos": {
+      "main": [[{ "node": "Code · Clasificar Alertas", "type": "main", "index": 0 }]]
+    },
+    "Code · Clasificar Alertas": {
+      "main": [[{ "node": "IF · Hay Alertas", "type": "main", "index": 0 }]]
+    },
+    "IF · Hay Alertas": {
+      "main": [
+        [{ "node": "Split · Una Alerta por Producto", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Split · Una Alerta por Producto": {
+      "main": [[{ "node": "CallMeBot · WhatsApp Dueño", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2.0.0"
+}

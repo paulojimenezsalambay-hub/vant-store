@@ -4065,7 +4065,7 @@ const DEV_API_BASE  = 'http://localhost:5678/webhook-test';
 const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
 
 const WH_SUSCRIBIR = `${API_BASE_URL}/suscribir-vant`;
-const WH_OFERTAS   = `${API_BASE_URL}/obtener-ofertas`;
+const WH_OFERTAS   = `${API_BASE_URL}/suscribir-vant`;  // mismo endpoint, diferenciado por campo origen='ofertas'
 
 /**
  * enviarFormulario(event, url)

@@ -1,0 +1,209 @@
+{
+  "name": "03 — Actualizar Stock Manual · VANT Store",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar-stock",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook · POST actualizar-stock",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "id": "wh-stock",
+      "webhookId": "actualizar-stock"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Acepta: { id_producto: 'perfume-01', stock_disponible: 3 }\nconst raw = $input.item.json;\nlet data;\nif (typeof raw.body === 'string') {\n  try { data = JSON.parse(raw.body); } catch(e) { data = {}; }\n} else if (raw.body && typeof raw.body === 'object') {\n  data = raw.body;\n} else {\n  data = raw;\n}\nconst id    = String(data.id_producto    || '').trim();\nconst stock = Number(data.stock_disponible);\nif (!id)               throw new Error('id_producto es requerido');\nif (isNaN(stock) || stock < 0) throw new Error('stock_disponible debe ser un número >= 0');\nreturn { json: { id_producto: id, stock_disponible: stock } };"
+      },
+      "name": "Code · Parsear y Validar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "id": "code-validate"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "filterByFormula",
+              "value": "={{ `{ID_Producto}='${$json.id_producto}'` }}"
+            },
+            { "name": "maxRecords", "value": "1" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP · Buscar Producto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "id": "http-search-product"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ ($json.records || []).length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "name": "IF · Producto Existe",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "id": "if-exists"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": false, \"error\": \"Producto no encontrado\" }",
+        "options": { "responseCode": 404 }
+      },
+      "name": "Respond · Producto No Encontrado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 440],
+      "id": "resp-not-found"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "record_id",      "value": "={{ $json.records[0].id }}" },
+            { "name": "nombre_producto","value": "={{ $json.records[0].fields.Nombre || $('Code · Parsear y Validar').item.json.id_producto }}" }
+          ],
+          "number": [
+            { "name": "stock_nuevo",    "value": "={{ $('Code · Parsear y Validar').item.json.stock_disponible }}" },
+            { "name": "stock_anterior", "value": "={{ $json.records[0].fields.Stock_Disponible || 0 }}" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set · Extraer Datos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [1120, 160],
+      "id": "set-data"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas/{{ $json.record_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ fields: { Stock_Disponible: $json.stock_nuevo } }) }}",
+        "options": {}
+      },
+      "name": "HTTP · Actualizar Stock Airtable",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 160],
+      "id": "http-update"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $('Set · Extraer Datos').item.json.stock_nuevo }}",
+              "operation": "smaller",
+              "value2": 5
+            }
+          ]
+        }
+      },
+      "name": "IF · Stock Crítico",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 160],
+      "id": "if-critico"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.callmebot.com/whatsapp.php",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "phone",  "value": "593999999999" },
+            { "name": "apikey", "value": "TU_CALLMEBOT_APIKEY" },
+            {
+              "name": "text",
+              "value": "={{ ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? '🚨 AGOTADO' : '⚠️ Stock bajo') + ' · VANT Store: ' + $('Set · Extraer Datos').item.json.nombre_producto + ' — ' + ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? 'SIN STOCK' : $('Set · Extraer Datos').item.json.stock_nuevo + ' uds. restantes') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "CallMeBot · Alerta Stock Crítico",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 60],
+      "id": "callmebot-critico"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, id_producto: $('Set · Extraer Datos').item.json.record_id.split('rec')[1] ? $('Code · Parsear y Validar').item.json.id_producto : $('Code · Parsear y Validar').item.json.id_producto, stock_anterior: $('Set · Extraer Datos').item.json.stock_anterior, stock_nuevo: $('Set · Extraer Datos').item.json.stock_nuevo }) }}",
+        "options": {}
+      },
+      "name": "Respond · Stock Actualizado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1780, 280],
+      "id": "resp-ok"
+    }
+  ],
+  "connections": {
+    "Webhook · POST actualizar-stock": {
+      "main": [[{ "node": "Code · Parsear y Validar", "type": "main", "index": 0 }]]
+    },
+    "Code · Parsear y Validar": {
+      "main": [[{ "node": "HTTP · Buscar Producto", "type": "main", "index": 0 }]]
+    },
+    "HTTP · Buscar Producto": {
+      "main": [[{ "node": "IF · Producto Existe", "type": "main", "index": 0 }]]
+    },
+    "IF · Producto Existe": {
+      "main": [
+        [{ "node": "Set · Extraer Datos",            "type": "main", "index": 0 }],
+        [{ "node": "Respond · Producto No Encontrado","type": "main", "index": 0 }]
+      ]
+    },
+    "Set · Extraer Datos": {
+      "main": [[{ "node": "HTTP · Actualizar Stock Airtable", "type": "main", "index": 0 }]]
+    },
+    "HTTP · Actualizar Stock Airtable": {
+      "main": [[{ "node": "IF · Stock Crítico", "type": "main", "index": 0 }]]
+    },
+    "IF · Stock Crítico": {
+      "main": [
+        [{ "node": "CallMeBot · Alerta Stock Crítico", "type": "main", "index": 0 }],
+        [{ "node": "Respond · Stock Actualizado",      "type": "main", "index": 0 }]
+      ]
+    },
+    "CallMeBot · Alerta Stock Crítico": {
+      "main": [[{ "node": "Respond · Stock Actualizado", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "2.0.0"
+}
