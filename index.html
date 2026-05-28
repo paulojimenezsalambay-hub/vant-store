@@ -1,10 +1,69 @@
 <!doctype html>
-<html lang="es">
+<html lang="es-EC">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>VANT STORE · Perfumería de autor</title>
-<meta name="description" content="VANT STORE — Perfumería de autor. Fragancias exclusivas para mujer, hombre y unisex. Originales 100%, envío 24-48h." />
+<title>VANT STORE · Perfumería de Autor en Quito, Ecuador</title>
+<meta name="description" content="VANT STORE — Perfumería de autor en Quito, Ecuador. Fragancias exclusivas para mujer, hombre y unisex. Originales 100%, envío a todo el Ecuador. Compra online con pago en USD." />
+<meta name="keywords" content="perfumería Quito, perfumes Ecuador, fragancias originales, perfumes de autor, tienda de perfumes Quito, VANT STORE" />
+
+<!-- Geo tags Ecuador -->
+<meta name="geo.region" content="EC-P" />
+<meta name="geo.placename" content="Quito, Ecuador" />
+<meta name="geo.position" content="-0.1807;-78.4678" />
+<meta name="ICBM" content="-0.1807, -78.4678" />
+
+<!-- Canonical -->
+<link rel="canonical" href="https://vantstore.ec/" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="es_EC" />
+<meta property="og:site_name" content="VANT STORE" />
+<meta property="og:title" content="VANT STORE · Perfumería de Autor en Quito, Ecuador" />
+<meta property="og:description" content="Fragancias exclusivas para mujer, hombre y unisex. Originales 100%, envío a todo el Ecuador. Compra online con pago en USD." />
+<meta property="og:url" content="https://vantstore.ec/" />
+<meta property="og:image" content="https://vantstore.ec/assets/og-cover.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="VANT STORE · Perfumería de Autor en Quito, Ecuador" />
+<meta name="twitter:description" content="Fragancias exclusivas, originales 100%, envío a todo Ecuador. Pago en USD." />
+<meta name="twitter:image" content="https://vantstore.ec/assets/og-cover.jpg" />
+
+<!-- Schema.org LocalBusiness -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "Store"],
+  "name": "VANT STORE",
+  "description": "Perfumería de autor en Quito, Ecuador. Fragancias exclusivas para mujer, hombre y unisex.",
+  "url": "https://vantstore.ec/",
+  "image": "https://vantstore.ec/assets/og-cover.jpg",
+  "telephone": "+593-99-000-0000",
+  "priceRange": "$$",
+  "currenciesAccepted": "USD",
+  "paymentAccepted": "Cash, Credit Card, Debit Card, Transfer",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Quito",
+    "addressRegion": "Pichincha",
+    "addressCountry": "EC"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": -0.1807,
+    "longitude": -78.4678
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "Ecuador"
+  },
+  "sameAs": []
+}
+</script>
 
 <!-- Content Security Policy: defensa en profundidad -->
 <meta http-equiv="Content-Security-Policy" content="
@@ -13,7 +72,7 @@
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://wa.me;
+  connect-src 'self' https://wa.me http://localhost:5678;
   form-action 'self' https://wa.me;
   frame-ancestors 'none';
   base-uri 'self';
@@ -39,15 +98,15 @@
    ============================================================ */
 
 :root {
-  --ink:        #08070a;
-  --coal:       #110f12;
-  --char:       #1c181c;
-  --bone:       #ece6da;
-  --bone-soft:  #b8b1a2;
-  --gold:       #c9a86a;
-  --gold-lite:  #f1deb1;
+  --ink:        #0e0c11;
+  --coal:       #131116;
+  --char:       #1d1a20;
+  --bone:       #f0ebe0;
+  --bone-soft:  #9c9490;
+  --gold:       #c8a96b;
+  --gold-lite:  #ead89e;
   --gold-deep:  #7a5a2c;
-  --line:       rgba(201,168,106,0.16);
+  --line:       rgba(200,169,107,0.13);
   --maxw:       1320px;
   --ease:       cubic-bezier(.22,1,.36,1);
 }
@@ -93,30 +152,6 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 }
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 32px; }
 
-/* ============================================================
-   CURSOR INSTANTÁNEO (sin lerp · responde 1:1)
-   ============================================================ */
-@media (hover: hover) and (pointer: fine) {
-  body { cursor: none; }
-  a, button, .clickable, [data-open], .filter, .opt, .nav-main a, .tile, .fam, .sidebar .opt {
-    cursor: none;
-  }
-}
-.cursor {
-  position: fixed; top: 0; left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--gold);
-  transform: translate(-50%,-50%);
-  will-change: transform;
-  transition: width .25s var(--ease), height .25s var(--ease), background .25s, opacity .25s;
-  mix-blend-mode: difference;
-}
-.cursor.hover { width: 56px; height: 56px; background: transparent; border: 1px solid var(--gold-lite); }
-.cursor.click { transform: translate(-50%,-50%) scale(.55); }
-@media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
 /* Progress bar */
 .progress {
@@ -181,9 +216,11 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
    ============================================================ */
 .nav {
   position: sticky; top: 0; z-index: 90;
-  backdrop-filter: blur(16px);
-  background: rgba(8,7,10,0.78);
-  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  background: rgba(12,10,15,0.58);
+  border-bottom: 1px solid rgba(200,169,107,0.09);
+  transition: background .5s;
 }
 .nav-inner {
   max-width: var(--maxw); margin: 0 auto;
@@ -335,58 +372,87 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 .btn {
   position: relative;
   display: inline-flex; align-items: center; justify-content: center;
-  padding: 17px 36px;
+  padding: 16px 38px;
   font-family: 'Outfit'; font-weight: 400;
-  font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase;
-  transition: all .4s var(--ease);
+  font-size: 10px; letter-spacing: 0.44em; text-transform: uppercase;
+  transition: all .55s var(--ease);
   line-height: 1; overflow: hidden;
   border: 1px solid transparent;
 }
-.btn-gold { background: linear-gradient(180deg, #d9b97a, #a47e3c); color: var(--ink); }
-.btn-gold:hover { letter-spacing: 0.42em; filter: brightness(1.08); box-shadow: 0 18px 40px -12px rgba(201,168,106,.45); }
-.btn-ghost { background: transparent; color: var(--gold-lite); border-color: rgba(201,168,106,.5); }
-.btn-ghost:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); letter-spacing: 0.42em; }
-.btn-sm { padding: 12px 22px; font-size: 10px; }
+.btn-gold {
+  background: linear-gradient(150deg, #d4b577 0%, #9e7836 60%, #c8a86a 100%);
+  color: var(--ink);
+}
+.btn-gold:hover {
+  letter-spacing: 0.52em;
+  filter: brightness(1.10);
+  box-shadow: 0 16px 44px -10px rgba(200,169,107,.42);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--bone);
+  border-color: rgba(200,169,107,.28);
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  letter-spacing: 0.52em;
+  box-shadow: 0 0 28px -8px rgba(200,169,107,.18);
+}
+.btn-sm { padding: 11px 22px; font-size: 10px; }
 
 /* ============================================================
    HERO
    ============================================================ */
 .hero {
   position: relative;
-  min-height: 86vh;
-  padding: 80px 0 60px;
+  min-height: 92vh;
+  padding: 100px 0 70px;
   display: flex; align-items: center;
   overflow: hidden;
 }
 .hero::before {
-  content: ''; position: absolute; inset: -10%;
+  content: ''; position: absolute; inset: 0;
   background:
-    radial-gradient(ellipse at 72% 40%, rgba(201,168,106,0.22), transparent 50%),
-    radial-gradient(ellipse at 20% 80%, rgba(201,168,106,0.08), transparent 50%),
-    linear-gradient(180deg, var(--ink), var(--coal) 60%, var(--ink));
+    /* spotlight cálido centrado en el frasco (columna derecha) */
+    radial-gradient(ellipse 52% 68% at 73% 44%, rgba(200,169,107,0.16) 0%, transparent 65%),
+    radial-gradient(ellipse 28% 38% at 73% 42%, rgba(200,169,107,0.10) 0%, transparent 60%),
+    /* calor ambiental tenue en la izquierda */
+    radial-gradient(ellipse 40% 50% at 16% 70%, rgba(200,169,107,0.04) 0%, transparent 55%),
+    /* base casi negro */
+    linear-gradient(168deg, #0a0810 0%, #0e0b12 50%, #09070c 100%);
   z-index: 0;
 }
+/* grain de película — textura luxury */
+.hero::after {
+  content: ''; position: absolute; inset: 0; z-index: 1;
+  pointer-events: none; opacity: 0.032;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.70' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: overlay;
+}
 .hero-grid {
-  position: relative; z-index: 2;
+  position: relative; z-index: 3;
   max-width: var(--maxw); margin: 0 auto; padding: 0 32px;
-  display: grid; grid-template-columns: 1.05fr 1fr; gap: 80px;
+  display: grid; grid-template-columns: 1fr 1.15fr; gap: 60px;
   align-items: center;
 }
 @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; } }
 .hero h1 {
   font-family: 'Bodoni Moda', serif; font-weight: 400;
-  font-size: clamp(48px, 7vw, 88px);
-  line-height: 1; margin: 24px 0 28px;
+  font-size: clamp(50px, 7vw, 92px);
+  line-height: 1; margin: 26px 0 30px;
+  letter-spacing: -0.01em;
 }
 .hero h1 .italic-line { font-style: italic; }
-.hero p.lead { max-width: 480px; color: var(--bone-soft); line-height: 1.8; margin: 0 0 36px; }
-@media (max-width: 900px) { .hero p.lead { margin: 0 auto 36px; } }
-.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+.hero p.lead { max-width: 460px; color: var(--bone-soft); line-height: 1.85; margin: 0 0 38px; font-size: 14px; }
+@media (max-width: 900px) { .hero p.lead { margin: 0 auto 38px; } }
+.hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
 @media (max-width: 900px) { .hero-ctas { justify-content: center; } }
 .hero-trust {
   display: flex; gap: 28px; align-items: center;
-  margin-top: 44px;
-  font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
+  margin-top: 48px;
+  font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase;
   color: var(--bone-soft);
 }
 @media (max-width: 900px) { .hero-trust { justify-content: center; flex-wrap: wrap; gap: 16px;} }
@@ -394,58 +460,106 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 
 .hero-product {
   position: relative;
-  max-width: 540px;
+  max-width: 680px;
   margin: 0 auto;
-  perspective: 1000px;
+  perspective: 1100px;
   display: flex;
   flex-direction: column;
-  gap: 36px;
+  gap: 28px;
 }
 .hero-product::before {
-  content: ''; position: absolute; inset: -40px;
-  background: radial-gradient(circle at 50% 40%, rgba(201,168,106,.25), transparent 60%);
-  filter: blur(40px); z-index: 0;
-  animation: pulse 6s ease-in-out infinite;
+  content: ''; position: absolute;
+  left: 0; right: 0; top: -20px; bottom: 0;
+  background:
+    radial-gradient(ellipse 75% 60% at 50% 40%, rgba(200,169,107,.22) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 32% at 50% 42%, rgba(200,169,107,.14) 0%, transparent 58%);
+  filter: blur(44px); z-index: 0;
+  animation: pulse 7s ease-in-out infinite;
   pointer-events: none;
 }
-@keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+/* charco de luz en el suelo del frasco */
+.hero-product::after {
+  content: ''; position: absolute;
+  left: 20%; right: 20%; bottom: 100px; height: 24px;
+  background: radial-gradient(ellipse 100% 100% at 50% 100%, rgba(200,169,107,.20), transparent 75%);
+  filter: blur(14px); z-index: 0; pointer-events: none;
+}
+@keyframes pulse { 0%,100%{opacity:.52} 50%{opacity:1} }
 .hero-product-stage {
   position: relative; z-index: 1;
   width: 100%;
-  height: 560px;
+  height: 740px;
 }
-@media (max-width: 900px) { .hero-product-stage { height: 480px; } }
+@media (max-width: 900px) { .hero-product-stage { height: 580px; } }
+@media (max-width: 480px)  { .hero-product-stage { height: 500px; } }
 .hero-slide {
   position: absolute; inset: 0;
   display: grid;
   grid-template-rows: 1fr auto;
-  row-gap: 24px;
+  row-gap: 16px;
   padding: 8px 0 4px;
   opacity: 0;
-  transform: translateY(20px) scale(.95) rotateY(-8deg);
-  transition: opacity .9s var(--ease), transform 1.1s var(--ease);
+  transform: translateY(22px) scale(.95);
+  transition: opacity 1s var(--ease), transform 1.2s var(--ease);
   pointer-events: none;
 }
 .hero-slide.active { opacity: 1; transform: none; pointer-events: auto; }
 .hero-slide .bottle-host {
-  width: 78%;
-  margin: 0 auto;
-  height: 100%;
-  min-height: 0;
+  /* !important necesario: el inline style height:100% de bottleHTML no resuelve
+     correctamente en grid 1fr en todos los navegadores */
+  width: 88% !important;
+  height: 640px !important;
+  margin: 0 auto !important;
   aspect-ratio: unset;
   position: relative;
+  align-self: center;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  filter: drop-shadow(0 40px 64px rgba(200,169,107,.22));
 }
-.hero-meta { text-align: center; align-self: end; padding-bottom: 4px; }
-.hero-meta .brand-tag { font-size: 10px; letter-spacing: 0.42em; color: var(--gold); text-transform: uppercase; margin-bottom: 6px; }
-.hero-meta .name { font-family: 'Bodoni Moda', serif; font-size: 28px; line-height: 1.1; }
-.hero-meta .price { font-family: 'Bodoni Moda', serif; font-style: italic; font-size: 20px; color: var(--gold-lite); margin-top: 8px; }
+/* El SVG placeholder llena siempre el host */
+.hero-slide .bottle-host > svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+/* La foto real también llena con contain */
+.hero-slide .bottle-host .prod-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
+}
+@media (max-width: 900px) {
+  .hero-slide .bottle-host { height: 480px !important; width: 86% !important; }
+}
+@media (max-width: 480px) {
+  .hero-slide .bottle-host { height: 400px !important; width: 90% !important; }
+}
+.hero-meta { text-align: center; align-self: end; padding-bottom: 6px; }
+.hero-meta .brand-tag {
+  font-size: 9px; letter-spacing: 0.50em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 7px;
+}
+.hero-meta .name {
+  font-family: 'Bodoni Moda', serif; font-size: 26px; line-height: 1.1;
+  font-style: italic;
+}
+.hero-meta .price {
+  font-family: 'Bodoni Moda', serif; font-style: italic;
+  font-size: 19px; color: var(--gold-lite); margin-top: 7px;
+}
 .hero-dots { display: flex; gap: 10px; justify-content: center; }
 .hero-dots button {
-  width: 32px; height: 2px; padding: 0;
-  background: rgba(236,230,218,0.18);
-  transition: all .25s;
+  width: 28px; height: 1px; padding: 0;
+  background: rgba(236,230,218,0.16);
+  transition: all .4s var(--ease);
 }
-.hero-dots button.active { background: var(--gold); width: 60px; }
+.hero-dots button.active { background: var(--gold); width: 56px; }
 
 /* ============================================================
    TILES
@@ -576,72 +690,82 @@ section { padding: 120px 0; position: relative; }
    ============================================================ */
 .card {
   position: relative;
-  background: linear-gradient(180deg, var(--char), var(--coal));
-  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #1d1a21 0%, #131116 100%);
+  border: 1px solid rgba(200,169,107,0.10);
   overflow: hidden;
-  transition: transform .5s var(--ease), border-color .4s, box-shadow .4s;
-  transform-style: preserve-3d;
+  transition: transform .6s var(--ease), border-color .5s, box-shadow .6s;
   cursor: pointer;
 }
-.card:hover { border-color: rgba(201,168,106,0.5); box-shadow: 0 30px 70px -20px rgba(201,168,106,0.28); }
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(200,169,107,0.40);
+  box-shadow:
+    0 28px 70px -18px rgba(0,0,0,.75),
+    0 0 36px -14px rgba(200,169,107,0.16);
+}
 .card .shine {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
-  background: radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(241,222,177,0.08), transparent 40%);
-  opacity: 0; transition: opacity .3s;
+  background: radial-gradient(400px circle at var(--mx,50%) var(--my,50%), rgba(241,222,177,0.06), transparent 40%);
+  opacity: 0; transition: opacity .5s;
 }
 .card:hover .shine { opacity: 1; }
 .card .badge {
   position: absolute; top: 16px; left: 16px; z-index: 3;
-  background: linear-gradient(180deg, #d9b97a, #a47e3c);
+  background: linear-gradient(150deg, #d4b577, #9e7836);
   color: var(--ink);
-  font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase;
-  padding: 6px 12px;
+  font-size: 9px; letter-spacing: 0.34em; text-transform: uppercase;
+  padding: 5px 11px;
 }
-.card .badge.alt { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
+.card .badge.alt { background: transparent; color: var(--gold); border: 1px solid rgba(200,169,107,.40); }
 .card .wish {
   position: absolute; top: 16px; right: 16px; z-index: 3;
-  width: 36px; height: 36px;
+  width: 34px; height: 34px;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(8,7,10,.6);
-  border: 1px solid var(--line);
+  background: rgba(10,8,13,.68);
+  border: 1px solid rgba(200,169,107,.12);
   color: var(--bone-soft);
   font-size: 14px;
-  transition: all .25s;
+  transition: all .4s var(--ease);
 }
-.card .wish:hover { color: var(--gold); border-color: var(--gold); }
+.card .wish:hover { color: var(--gold); border-color: rgba(200,169,107,.50); }
 .card .img-area {
   aspect-ratio: 3/4;
-  padding: 30px;
-  background: radial-gradient(ellipse at 50% 65%, rgba(201,168,106,0.1), transparent 70%);
+  padding: 28px;
+  background:
+    radial-gradient(ellipse 65% 55% at 50% 62%, rgba(200,169,107,0.09), transparent 68%),
+    linear-gradient(180deg, #181520 0%, #100e13 100%);
   position: relative; overflow: hidden;
 }
-.card .img-area .bottle-host { transition: transform .5s var(--ease); }
-.card:hover .img-area .bottle-host { transform: scale(1.05); }
-.card .body { padding: 22px 24px 26px; border-top: 1px solid var(--line); position: relative; }
-.card .brand-tag { font-size: 10px; letter-spacing: 0.42em; color: var(--gold); text-transform: uppercase; }
+.card .img-area .bottle-host { transition: transform .6s var(--ease), filter .6s; }
+.card:hover .img-area .bottle-host {
+  transform: scale(1.06) translateY(-5px);
+  filter: drop-shadow(0 18px 28px rgba(200,169,107,.11));
+}
+.card .body { padding: 20px 22px 24px; border-top: 1px solid rgba(200,169,107,0.08); position: relative; }
+.card .brand-tag { font-size: 9px; letter-spacing: 0.48em; color: var(--gold); text-transform: uppercase; }
 .card h3 {
   font-family: 'Bodoni Moda', serif; font-weight: 400;
-  font-size: 20px; letter-spacing: 0.01em;
+  font-size: 19px; letter-spacing: 0.01em;
   margin: 6px 0 4px;
-  min-height: 50px;
+  min-height: 46px;
 }
-.card .meta { font-size: 11px; color: var(--bone-soft); letter-spacing: 0.06em; }
+.card .meta { font-size: 11px; color: var(--bone-soft); letter-spacing: 0.05em; }
 .card .row {
   display: flex; align-items: center; justify-content: space-between;
-  margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+  margin-top: 14px; padding-top: 13px; border-top: 1px solid rgba(200,169,107,0.08);
 }
 .card .price-wrap { display: flex; flex-direction: column; }
-.card .price-old { font-size: 12px; color: var(--bone-soft); text-decoration: line-through; }
+.card .price-old { font-size: 12px; color: var(--bone-soft); text-decoration: line-through; opacity: .65; }
 .card .price { font-family: 'Bodoni Moda', serif; font-size: 22px; }
 .card .price.sale { color: var(--gold); }
 .card .buy {
-  font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
+  font-size: 10px; letter-spacing: 0.34em; text-transform: uppercase;
   color: var(--gold);
-  padding: 8px 14px;
-  border: 1px solid var(--gold);
-  transition: all .25s;
+  padding: 8px 13px;
+  border: 1px solid rgba(200,169,107,.28);
+  transition: all .45s var(--ease);
 }
-.card .buy:hover { background: var(--gold); color: var(--ink); letter-spacing: 0.42em; }
+.card .buy:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); letter-spacing: 0.44em; }
 
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -733,6 +857,39 @@ section { padding: 120px 0; position: relative; }
 }
 
 /* ============================================================
+   OFERTAS DESTACADAS (landing)
+   ============================================================ */
+.ofertas-section {
+  padding: 100px 0;
+  border-top: 1px solid var(--line);
+}
+.ofertas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+@media (max-width: 1080px) { .ofertas-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px)  { .ofertas-grid { grid-template-columns: 1fr; } }
+
+/* Imagen en las cards de la sección de ofertas: tamaño fluido */
+.ofertas-grid .card .img-area {
+  aspect-ratio: 4/5;
+  padding: 20px;
+  overflow: visible;
+}
+.ofertas-grid .card .img-area .bottle-host {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+}
+.ofertas-grid .card .img-area .bottle-host .prod-img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
+}
+
+/* ============================================================
    MANIFIESTO
    ============================================================ */
 .manifesto {
@@ -761,39 +918,100 @@ section { padding: 120px 0; position: relative; }
 }
 
 /* ============================================================
-   NEWSLETTER
+   NEWSLETTER — CTA strip en el landing
    ============================================================ */
 .newsletter {
+  padding: 80px 0;
   background: linear-gradient(180deg, var(--coal), var(--ink));
-  padding: 100px 0;
+  border-top: 1px solid var(--line);
+  text-align: center;
   position: relative; overflow: hidden;
 }
 .newsletter::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, rgba(201,168,106,.1), transparent 70%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(201,168,106,.08), transparent 70%);
+  pointer-events: none;
 }
 .newsletter-inner {
   position: relative;
-  max-width: 680px; margin: 0 auto; padding: 0 32px;
+  max-width: 640px; margin: 0 auto; padding: 0 32px;
   text-align: center;
 }
 .newsletter h2 {
   font-family: 'Bodoni Moda', serif; font-weight: 400;
-  font-size: clamp(36px, 5vw, 54px);
+  font-size: clamp(34px, 4.5vw, 52px);
   margin: 14px 0 16px;
 }
-.newsletter p { color: var(--bone-soft); margin: 0 0 30px; }
-.newsletter form { display: flex; gap: 8px; max-width: 460px; margin: 0 auto; }
-.newsletter input {
-  flex: 1;
+.newsletter p { color: var(--bone-soft); margin: 0 0 32px; }
+
+/* ============================================================
+   NEWSLETTER MODAL — popup centrado
+   ============================================================ */
+#newsletterModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(8,7,10,.84);
+  backdrop-filter: blur(16px);
+}
+#newsletterModal.open { display: block; }
+
+.nl-modal-box {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  width: 90%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: linear-gradient(160deg, var(--char), var(--coal));
+  border: 1px solid var(--line);
+  padding: 52px 40px 44px;
+  text-align: center;
+  animation: nlIn .35s var(--ease) both;
+}
+@media (max-width: 480px) { .nl-modal-box { padding: 44px 24px 36px; } }
+
+@keyframes nlIn {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 18px)) scale(.96); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+.nl-modal-close {
+  position: absolute;
+  top: 14px; right: 18px;
+  font-size: 26px; color: var(--bone-soft);
+  background: none; border: none; cursor: pointer;
+  transition: color .2s, transform .25s;
+  line-height: 1;
+}
+.nl-modal-close:hover { color: var(--gold); transform: rotate(90deg); }
+
+.nl-modal-box h2 {
+  font-family: 'Bodoni Moda', serif; font-weight: 400;
+  font-size: clamp(28px, 5vw, 38px);
+  margin: 14px 0 14px; line-height: 1.15;
+}
+.nl-modal-box p { color: var(--bone-soft); margin: 0 0 28px; font-size: 14px; line-height: 1.7; }
+.nl-modal-box form { display: flex; gap: 8px; max-width: 100%; }
+.nl-modal-box input {
+  flex: 1; min-width: 0;
   background: var(--ink); color: var(--bone);
   border: 1px solid var(--line);
-  padding: 16px 18px;
+  padding: 14px 16px;
   font: inherit; font-size: 13px;
   outline: none; transition: border-color .25s;
 }
-.newsletter input:focus { border-color: var(--gold); }
-@media (max-width: 540px) { .newsletter form { flex-direction: column; } }
+.nl-modal-box input:focus { border-color: var(--gold); }
+@media (max-width: 460px) { .nl-modal-box form { flex-direction: column; } }
+.nl-modal-divider {
+  margin: 32px 0 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.nl-modal-divider p { margin: 0 0 18px; }
 
 /* ============================================================
    MODAL · transición de expansión
@@ -801,11 +1019,12 @@ section { padding: 120px 0; position: relative; }
 .modal {
   position: fixed; inset: 0; z-index: 200;
   display: none;
-  background: rgba(8,7,10,.85);
+  background: rgba(8,7,10,.88);
   backdrop-filter: blur(20px);
-  align-items: center; justify-content: center;
-  padding: 24px;
+  align-items: flex-start; justify-content: center;
+  padding: 32px 24px 48px;
   opacity: 0;
+  overflow-y: auto;
   transition: opacity .35s var(--ease);
 }
 .modal.open { display: flex; opacity: 1; }
@@ -815,17 +1034,44 @@ section { padding: 120px 0; position: relative; }
   background: linear-gradient(180deg, var(--char), var(--coal));
   border: 1px solid var(--line);
   display: grid; grid-template-columns: 1fr 1fr;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   transform: scale(.92) translateY(30px);
   opacity: 0;
   transition: transform .45s var(--ease), opacity .35s var(--ease);
+  margin: auto;
 }
 .modal.open .modal-inner { transform: none; opacity: 1; }
-@media (max-width: 820px) { .modal-inner { grid-template-columns: 1fr; max-height: 92vh; overflow-y: auto; } }
+@media (max-width: 820px) { .modal-inner { grid-template-columns: 1fr; } }
 .modal-img {
-  aspect-ratio: 3/4; padding: 40px;
+  aspect-ratio: 3/4;
+  min-height: 420px;
+  padding: 40px;
   background: radial-gradient(ellipse at 50% 65%, rgba(201,168,106,0.14), transparent 70%);
   display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+/* Bottle en el modal principal: ocupa todo el espacio disponible */
+.modal-img .bottle-host {
+  width: 72% !important;
+  height: 100% !important;
+  min-height: 340px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.modal-img .bottle-host > svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+.modal-img .bottle-host .prod-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
 }
 .modal-info { padding: 48px 44px; }
 .modal-info .brand-tag { font-size: 10px; letter-spacing: 0.42em; color: var(--gold); text-transform: uppercase; }
@@ -848,7 +1094,23 @@ section { padding: 120px 0; position: relative; }
   padding-top: 22px;
   border-top: 1px solid var(--line);
 }
-.modal-info .price { font-family: 'Bodoni Moda', serif; font-size: 32px; }
+.modal-info .price-wrap { display: flex; flex-direction: column; gap: 2px; }
+.modal-info .price-old {
+  font-size: 13px; color: var(--bone-soft); text-decoration: line-through; opacity: .6;
+  font-family: 'Outfit', sans-serif; letter-spacing: 0.04em;
+  display: flex; align-items: baseline; gap: 1px;
+}
+.modal-info .price {
+  font-family: 'Bodoni Moda', serif; font-style: italic;
+  font-size: 38px; line-height: 1;
+  display: flex; align-items: baseline; gap: 3px;
+}
+.modal-info .price .price-sign {
+  font-family: 'Outfit', sans-serif; font-style: normal; font-weight: 300;
+  font-size: 18px; letter-spacing: 0.02em;
+  align-self: flex-start; margin-top: 6px;
+}
+.modal-info .price.sale { color: var(--gold); }
 .modal-close {
   position: absolute; top: 18px; right: 18px;
   width: 42px; height: 42px;
@@ -857,6 +1119,88 @@ section { padding: 120px 0; position: relative; }
   transition: all .25s; z-index: 4;
 }
 .modal-close:hover { color: var(--gold); border-color: var(--gold); transform: rotate(90deg); }
+
+/* Modal — sección de relacionados */
+.modal-related {
+  grid-column: 1 / -1;
+  padding: 40px 44px 48px;
+  border-top: 1px solid var(--line);
+}
+.modal-related-title {
+  font-size: 10px; letter-spacing: 0.46em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 28px;
+}
+.modal-related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 820px) {
+  .modal-related { padding: 32px 20px 36px; }
+  .modal-related-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+}
+@media (max-width: 440px) {
+  .modal-related-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+.rel-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: border-color .3s var(--ease), transform .3s var(--ease), background .3s var(--ease);
+  overflow: hidden;
+}
+.rel-card:hover {
+  border-color: rgba(201,168,106,0.45);
+  transform: translateY(-4px);
+  background: rgba(201,168,106,0.04);
+}
+.rel-card-img {
+  aspect-ratio: 3/4;
+  padding: 16px 12px 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 70%, rgba(201,168,106,0.08), transparent 68%);
+  position: relative;
+  min-height: 160px;
+}
+/* El bottle-host dentro de las tarjetas relacionadas necesita altura explícita */
+.rel-card-img .bottle-host {
+  width: 70% !important;
+  height: 100% !important;
+  min-height: 140px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.rel-card-img .bottle-host > svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+.rel-card-img .bottle-host .prod-img {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  object-fit: contain !important;
+}
+.rel-card-body { padding: 10px 14px 16px; border-top: 1px solid rgba(201,168,106,0.07); }
+.rel-card-brand { font-size: 8px; letter-spacing: 0.46em; text-transform: uppercase; color: var(--gold); }
+.rel-card-name {
+  font-family: 'Bodoni Moda', serif; font-weight: 400;
+  font-size: 14px; margin: 3px 0 6px; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rel-card-price {
+  font-family: 'Bodoni Moda', serif; font-style: italic;
+  font-size: 17px; color: var(--bone);
+  display: flex; align-items: baseline; gap: 2px;
+}
+.rel-card-price .ps {
+  font-family: 'Outfit', sans-serif; font-style: normal; font-weight: 300;
+  font-size: 11px; align-self: flex-start; margin-top: 3px;
+}
+.rel-card-price.sale { color: var(--gold); }
 
 /* ============================================================
    FOOTER
@@ -885,9 +1229,9 @@ footer a:hover { color: var(--gold); }
 /* ============================================================
    REVEAL
    ============================================================ */
-.reveal { opacity: 0; transform: translateY(28px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+.reveal { opacity: 0; transform: translateY(38px); transition: opacity 1.15s var(--ease), transform 1.15s var(--ease); }
 .reveal.in { opacity: 1; transform: translateY(0); }
-.stagger > * { opacity: 0; transform: translateY(20px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.stagger > * { opacity: 0; transform: translateY(26px); transition: opacity 1.05s var(--ease), transform 1.05s var(--ease); }
 .stagger.in > *:nth-child(1){transition-delay:.05s}.stagger.in > *:nth-child(2){transition-delay:.12s}
 .stagger.in > *:nth-child(3){transition-delay:.19s}.stagger.in > *:nth-child(4){transition-delay:.26s}
 .stagger.in > *:nth-child(5){transition-delay:.33s}.stagger.in > *:nth-child(6){transition-delay:.40s}
@@ -1064,7 +1408,40 @@ body.shop-locked { overflow: hidden; }
 .shop-brand .logo { font-family: 'Bodoni Moda', serif; font-weight: 500; font-size: 24px; letter-spacing: 0.28em; }
 .shop-brand .logo b { color: var(--gold); font-style: italic; }
 .shop-brand .sub { font-size: 9px; letter-spacing: 0.42em; color: var(--bone-soft); text-transform: uppercase; }
-.shop-actions { display: flex; justify-content: flex-end; }
+.shop-actions { display: flex; align-items: center; gap: 12px; justify-content: flex-end; }
+
+/* Buscador inline dentro del shop */
+.shop-search-wrap {
+  position: relative; flex: 1; max-width: 220px;
+}
+.shop-search-icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--bone-soft); font-size: 14px; pointer-events: none;
+}
+.shop-search {
+  width: 100%;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px; letter-spacing: .06em;
+  padding: 9px 12px 9px 30px;
+  outline: none; transition: border-color .25s var(--ease);
+}
+.shop-search::placeholder { color: var(--bone-soft); opacity: .65; }
+.shop-search:focus { border-color: var(--gold); }
+@media (max-width: 600px) { .shop-search-wrap { max-width: 130px; } }
+@media (max-width: 440px) { .shop-search-wrap { display: none; } }
+
+/* Chip "← Volver" que aparece cuando todos los filtros se borran */
+.origin-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--bone-soft); border: 1px solid var(--line);
+  padding: 6px 14px 6px 10px; cursor: pointer;
+  transition: border-color .25s, color .25s; background: transparent;
+}
+.origin-chip:hover { border-color: var(--gold); color: var(--gold); }
 
 .shop-filters-btn {
   display: inline-flex; align-items: center; gap: 10px;
@@ -1198,6 +1575,31 @@ body.shop-locked { overflow: hidden; }
 }
 
 .shop-grid { margin-top: 8px; }
+
+/* Paginación */
+.shop-pagination {
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; margin-top: 48px; margin-bottom: 16px;
+}
+.shop-pagination button {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--bone-soft);
+  font: inherit; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: border-color .25s var(--ease), color .25s var(--ease);
+}
+.shop-pagination button:hover:not(:disabled) {
+  border-color: var(--gold); color: var(--gold);
+}
+.shop-pagination button:disabled {
+  opacity: 0.25; cursor: default;
+}
+.shop-pagination .pag-info {
+  font-size: 11px; letter-spacing: 0.16em; color: var(--bone-soft);
+  padding: 0 12px;
+}
 
 /* Img editor */
 /* ============================================================
@@ -1387,121 +1789,95 @@ body.shop-locked { overflow: hidden; }
 }
 .modal-actions .btn { padding: 14px 22px; font-size: 10px; }
 
-.img-editor-toggle {
-  position: fixed; bottom: 24px; right: 24px;
-  z-index: 300;
-  width: 56px; height: 56px;
-  background: linear-gradient(180deg, #d9b97a, #a47e3c);
-  color: var(--ink);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: 0 12px 30px -8px rgba(201,168,106,.5);
-  transition: transform .3s var(--ease);
+/* ============================================================
+   MODAL CONFIRMACIÓN PEDIDO
+   ============================================================ */
+#modal-confirmacion {
+  display: none;
+  position: fixed; inset: 0; z-index: 500;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(8,7,10,.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
-.img-editor-toggle:hover { transform: scale(1.08) rotate(8deg); }
-.img-editor {
-  position: fixed; top: 0; right: -100%; bottom: 0;
-  width: min(480px, 92vw); z-index: 305;
-  background: linear-gradient(180deg, var(--char), var(--coal));
-  border-left: 1px solid var(--gold);
-  padding: 80px 28px 28px;
-  overflow-y: auto;
-  transition: right .4s var(--ease);
-}
-.img-editor.open { right: 0; }
-.img-editor h4 { font-family: 'Bodoni Moda', serif; font-weight: 400; font-size: 26px; margin: 0 0 6px; }
-.img-editor .lead { color: var(--bone-soft); font-size: 13px; margin: 0 0 24px; line-height: 1.6; }
-.img-editor .hint {
-  background: rgba(201,168,106,.08);
+#modal-confirmacion.visible { display: flex; }
+.mconf-box {
+  position: relative;
+  width: 100%; max-width: 440px;
+  background: linear-gradient(160deg, var(--char) 0%, var(--coal) 100%);
   border: 1px solid var(--line);
-  padding: 14px 16px;
-  font-size: 11px; color: var(--bone-soft); line-height: 1.6;
-  margin-bottom: 24px;
-}
-.img-editor .hint b { color: var(--gold); font-weight: 500; }
-.img-editor .ie-row { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-.img-editor .ie-row .lbl { font-size: 10px; letter-spacing: 0.32em; color: var(--gold); text-transform: uppercase; display: block; margin-bottom: 8px; }
-.img-editor .ie-row input {
-  width: 100%; padding: 10px 12px;
-  background: var(--ink); color: var(--bone);
-  border: 1px solid var(--line);
-  font-family: inherit; font-size: 12px;
-  outline: none; transition: border-color .25s;
-}
-.img-editor .ie-row input:focus { border-color: var(--gold); }
-.img-editor .ie-thumb {
-  margin-top: 10px;
-  width: 70px; height: 90px;
-  border: 1px solid var(--line);
-  display: flex; align-items: center; justify-content: center;
-  background: var(--ink); overflow: hidden;
-}
-.img-editor .ie-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
-.img-editor .ie-thumb .empty { font-size: 9px; color: var(--bone-soft); letter-spacing: 0.32em; text-transform: uppercase; }
-.img-editor .ie-actions { display: flex; gap: 8px; margin-top: 18px; position: sticky; bottom: 0; background: var(--coal); padding: 14px 0; }
-.img-editor .ie-actions button {
-  flex: 1; padding: 12px;
-  font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
-  border: 1px solid var(--line);
-  transition: all .25s;
-}
-.img-editor .ie-actions .save { background: var(--gold); color: var(--ink); border-color: var(--gold); }
-.img-editor .ie-actions .save:hover { letter-spacing: 0.42em; }
-.img-editor .ie-actions .reset { color: var(--bone-soft); }
-.img-editor .ie-actions .reset:hover { color: var(--gold); border-color: var(--gold); }
-.img-editor .ie-close {
-  position: absolute; top: 24px; right: 24px;
-  width: 38px; height: 38px;
-  border: 1px solid var(--line); color: var(--bone-soft);
-  font-family: 'Bodoni Moda', serif; font-size: 22px;
-}
-.img-editor .ie-close:hover { color: var(--gold); border-color: var(--gold); }
-.img-editor .ie-composite {
-  background: rgba(201,168,106,.08);
-  border: 1px solid var(--gold);
-  padding: 16px 18px;
-  margin-bottom: 22px;
-}
-.img-editor .ie-composite h5 {
-  font-size: 12px; letter-spacing: 0.32em; color: var(--gold);
-  text-transform: uppercase; margin: 0 0 8px;
-}
-.img-editor .ie-csub { color: var(--bone-soft); font-size: 12px; line-height: 1.55; margin: 0 0 14px; }
-.img-editor .ie-cdrop {
-  border: 2px dashed var(--gold);
-  background: rgba(201,168,106,.04);
-  padding: 28px 14px;
+  padding: 40px 36px 32px;
   text-align: center;
-  font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
-  color: var(--gold-lite);
-  cursor: pointer;
-  transition: all .25s;
+  animation: mconfIn .35s var(--ease) both;
 }
-.img-editor .ie-cdrop:hover, .img-editor .ie-cdrop.dragover {
-  background: rgba(201,168,106,.14);
-  color: var(--gold);
+@keyframes mconfIn {
+  from { opacity: 0; transform: translateY(18px) scale(.96); }
+  to   { opacity: 1; transform: none; }
 }
-.img-editor .ie-cstatus {
-  margin-top: 12px;
-  font-size: 12px; color: var(--bone-soft);
-  text-align: center; min-height: 18px;
+/* línea dorada superior */
+.mconf-box::before {
+  content: '';
+  position: absolute; top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
 }
-.img-editor .ie-cstatus.ok { color: #6ed29a; }
-.img-editor .ie-cstatus.err { color: #e07a7a; }
-.img-editor .ie-cdownload {
-  margin-top: 12px;
-  width: 100%; padding: 12px;
-  background: var(--gold); color: var(--ink); border: 0;
-  font-size: 10px; letter-spacing: 0.32em; text-transform: uppercase;
-  transition: all .25s;
+.mconf-eyebrow {
+  font-size: 9px; letter-spacing: 0.50em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 12px;
 }
-.img-editor .ie-cdownload:hover { letter-spacing: 0.42em; }
+.mconf-title {
+  font-family: 'Bodoni Moda', serif; font-weight: 400; font-style: italic;
+  font-size: 26px; line-height: 1.1; margin: 0 0 20px;
+}
+.mconf-product {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0; margin-bottom: 28px;
+}
+.mconf-nombre {
+  font-family: 'Bodoni Moda', serif; font-size: 18px;
+  margin-bottom: 6px; line-height: 1.2;
+}
+.mconf-marca  { font-size: 11px; letter-spacing: 0.32em; color: var(--bone-soft); text-transform: uppercase; margin-bottom: 10px; }
+.mconf-precio {
+  font-family: 'Bodoni Moda', serif; font-style: italic;
+  font-size: 28px; color: var(--gold-lite);
+  display: flex; align-items: baseline; justify-content: center; gap: 3px;
+}
+.mconf-precio .ps {
+  font-family: 'Outfit', sans-serif; font-style: normal; font-weight: 300;
+  font-size: 14px; align-self: flex-start; margin-top: 5px;
+}
+.mconf-sub {
+  font-size: 12px; color: var(--bone-soft); margin-top: 8px; line-height: 1.5;
+}
+.mconf-actions {
+  display: flex; gap: 10px;
+}
+.mconf-actions button {
+  flex: 1; padding: 14px 16px;
+  font: inherit; font-size: 10px; letter-spacing: 0.36em; text-transform: uppercase;
+  border: 1px solid var(--line); cursor: pointer;
+  transition: border-color .25s var(--ease), color .25s var(--ease), background .25s var(--ease);
+}
+#mconfAceptar {
+  background: linear-gradient(150deg, #d4b577 0%, #9e7836 60%, #c8a86a 100%);
+  color: var(--ink); border-color: var(--gold);
+}
+#mconfAceptar:hover { filter: brightness(1.1); }
+#mconfCancelar {
+  background: transparent; color: var(--bone-soft);
+}
+#mconfCancelar:hover { border-color: var(--gold); color: var(--gold); }
+@media (max-width: 480px) {
+  .mconf-box { padding: 32px 22px 26px; }
+  .mconf-actions { flex-direction: column; }
+}
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
 <div class="progress" id="progress"></div>
 
 <!-- PAGE TRANSITION -->
@@ -1642,8 +2018,6 @@ body.shop-locked { overflow: hidden; }
           </div>
         </div>
       </li>
-      <li><a data-jump="bestsellers">Bestsellers</a></li>
-      <li><a data-jump="novedades">Novedades</a></li>
     </ul>
 
     <div class="nav-tools">
@@ -1663,8 +2037,6 @@ body.shop-locked { overflow: hidden; }
   <h5>Categorías</h5>
   <a data-jump="coleccion" data-filter='{"genero":"Mujer"}'>Mujer</a>
   <a data-jump="coleccion" data-filter='{"genero":"Hombre"}'>Hombre</a>
-  <a data-jump="bestsellers">Bestsellers</a>
-  <a data-jump="novedades">Novedades</a>
   <a data-jump="coleccion" data-filter='{"oferta":true}'>Ofertas</a>
   <h5>Familias</h5>
   <a data-jump="coleccion" data-filter='{"familia":"Floral"}'>Floral</a>
@@ -1705,7 +2077,7 @@ body.shop-locked { overflow: hidden; }
         Solo lo extraordinario merece quedarse.
       </p>
       <div class="hero-ctas">
-        <a class="btn btn-gold" data-jump="bestsellers"><span>Ver más vendidos</span></a>
+        <a class="btn btn-gold" data-jump="coleccion"><span>Ver colección</span></a>
         <a class="btn btn-ghost" data-jump="coleccion"><span>Toda la colección</span></a>
       </div>
       <div class="hero-trust">
@@ -1742,18 +2114,18 @@ body.shop-locked { overflow: hidden; }
   <div class="marquee-track" id="marqueeTrack"></div>
 </div>
 
-<!-- BEST SELLERS -->
-<section id="bestsellers">
+
+<!-- OFERTAS DESTACADAS -->
+<section id="ofertas" class="ofertas-section">
   <div class="wrap">
     <div class="section-head between reveal">
       <div>
-        <span class="eyebrow">Los favoritos · 2026</span>
-        <h2>Más <span class="display-i gold-text">vendidos</span></h2>
-        <p>Las fragancias que más salen de nuestro almacén.</p>
+        <span class="eyebrow">Selección de la semana</span>
+        <h2>Ofertas <span class="display-i gold-text">destacadas</span></h2>
       </div>
-      <a class="btn btn-ghost btn-sm" data-jump="coleccion"><span>Ver todos</span></a>
+      <a class="btn btn-ghost btn-sm" data-jump="coleccion" data-filter='{"oferta":true}'><span>Ver todas →</span></a>
     </div>
-    <div class="grid-4 stagger" id="bestGrid"></div>
+    <div class="ofertas-grid stagger" id="ofertasGrid"></div>
   </div>
 </section>
 
@@ -1769,19 +2141,6 @@ body.shop-locked { overflow: hidden; }
   </div>
 </section>
 
-<!-- NOVEDADES -->
-<section id="novedades">
-  <div class="wrap">
-    <div class="section-head between reveal">
-      <div>
-        <span class="eyebrow">Recién llegados</span>
-        <h2>Nuevas <span class="display-i gold-text">incorporaciones</span></h2>
-      </div>
-      <a class="btn btn-ghost btn-sm" data-jump="coleccion"><span>Ver todos</span></a>
-    </div>
-    <div class="grid-4 stagger" id="newGrid"></div>
-  </div>
-</section>
 
 <!-- MANIFIESTO -->
 <section id="manifiesto" class="manifesto">
@@ -1806,16 +2165,13 @@ body.shop-locked { overflow: hidden; }
      hacer click en cualquier link con data-jump="coleccion". -->
 <div id="coleccion" style="display:none"></div>
 
-<!-- NEWSLETTER -->
+<!-- NEWSLETTER — CTA strip (abre el modal) -->
 <section class="newsletter">
   <div class="newsletter-inner reveal">
     <span class="eyebrow">El club Vant</span>
     <h2>Recibe lanzamientos<br><span class="display-i gold-text">antes que nadie.</span></h2>
     <p>Acceso anticipado a novedades, ofertas privadas y guías olfativas curadas por nuestro equipo.</p>
-    <form onsubmit="event.preventDefault(); alert('¡Gracias! Pronto sabrás de nosotros.');">
-      <input type="email" placeholder="Tu email" required>
-      <button type="submit" class="btn btn-gold"><span>Suscribirme</span></button>
-    </form>
+    <button class="btn btn-gold" id="openNewsletterModal"><span>Suscribirme gratis →</span></button>
   </div>
 </section>
 
@@ -1840,8 +2196,6 @@ body.shop-locked { overflow: hidden; }
       <ul>
         <li><a data-jump="coleccion" data-filter='{"genero":"Mujer"}'>Mujer</a></li>
         <li><a data-jump="coleccion" data-filter='{"genero":"Hombre"}'>Hombre</a></li>
-        <li><a data-jump="bestsellers">Bestsellers</a></li>
-        <li><a data-jump="novedades">Novedades</a></li>
         <li><a data-jump="coleccion" data-filter='{"oferta":true}'>Ofertas</a></li>
       </ul>
     </div>
@@ -1918,9 +2272,7 @@ body.shop-locked { overflow: hidden; }
     <div class="search-box">
       <input type="text" id="searchInput" placeholder="Marca, nombre, nota olfativa...">
     </div>
-    <div class="search-hint">
-      Atajo: <kbd>Ctrl</kbd>+<kbd>K</kbd> · <kbd>Esc</kbd> para cerrar
-    </div>
+
     <div class="search-results" id="searchResults">
       <div class="search-empty">Empieza a escribir para encontrar tu fragancia</div>
     </div>
@@ -1936,6 +2288,10 @@ body.shop-locked { overflow: hidden; }
       <span class="sub">tienda</span>
     </a>
     <div class="shop-actions">
+      <div class="shop-search-wrap">
+        <span class="shop-search-icon">⌕</span>
+        <input type="text" id="shopSearchInput" class="shop-search" placeholder="Buscar fragancia…" autocomplete="off" spellcheck="false" aria-label="Buscar en tienda">
+      </div>
       <button class="shop-cart-btn cart-toggle" id="cartToggleShop" aria-label="Carrito">
         🛒<span class="badge">0</span>
       </button>
@@ -1958,6 +2314,13 @@ body.shop-locked { overflow: hidden; }
 
     <!-- Panel de filtros (colapsado por defecto) -->
     <div class="shop-filters" id="shopFilters">
+      <div class="filter-group">
+        <h5>Buscar</h5>
+        <div class="shop-search-wrap" style="max-width:100%">
+          <span class="shop-search-icon">⌕</span>
+          <input type="text" id="shopSearchPanel" class="shop-search" placeholder="Nombre, marca, nota…" autocomplete="off" spellcheck="false" aria-label="Buscar por nombre">
+        </div>
+      </div>
       <div class="filter-group">
         <h5>Género</h5>
         <div class="chip-row" data-filter="genero">
@@ -2018,37 +2381,54 @@ body.shop-locked { overflow: hidden; }
     </div>
 
     <div class="grid-3 stagger shop-grid" id="catalogGrid"></div>
+    <div class="shop-pagination" id="shopPagination"></div>
   </div>
 </div>
 
-<!-- IMG EDITOR -->
-<button class="img-editor-toggle" id="ieToggle" aria-label="Editar imágenes">⚙</button>
-<aside class="img-editor" id="imgEditor">
-  <button class="ie-close" id="ieClose">×</button>
-  <h4>Editor de imágenes</h4>
-  <p class="lead">Pega aquí la URL de cualquier imagen de producto (de druni, fabricante, etc.). Los cambios se aplican al instante y se guardan en tu navegador.</p>
-  <div class="ie-composite" id="compositeBox">
-    <h5>📐 Importar imagen compuesta (4×5)</h5>
-    <p class="ie-csub">Si tienes una imagen con todos los frascos en grid 4×5, súbela aquí y se recorta sola en 20 fotos.</p>
-    <input type="file" id="compositeInput" accept="image/*" hidden>
-    <div class="ie-cdrop" id="compositeDrop">
-      <span>Arrastra o haz click para seleccionar imagen</span>
+
+<!-- NEWSLETTER MODAL — centrado con position fixed, fuera de cualquier contenedor padre -->
+<div id="newsletterModal" role="dialog" aria-modal="true" aria-labelledby="nlModalTitle">
+  <div class="nl-modal-box">
+    <button class="nl-modal-close" id="closeNewsletterModal" aria-label="Cerrar">×</button>
+    <span class="eyebrow">El club Vant</span>
+    <h2 id="nlModalTitle">Recibe lanzamientos<br><span class="display-i gold-text">antes que nadie.</span></h2>
+    <p>Acceso anticipado a novedades, ofertas privadas y guías olfativas curadas por nuestro equipo.</p>
+    <form id="formNewsletter" novalidate>
+      <input type="email" id="newsletterEmail" placeholder="Tu email" required autocomplete="email">
+      <button type="submit" class="btn btn-gold" id="btnSuscribir"><span>Suscribirme</span></button>
+    </form>
+    <div id="newsletterMsg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
+
+    <div class="nl-modal-divider">
+      <p>¿Quieres recibir nuestras <span class="gold-text">ofertas exclusivas</span> directamente?</p>
+      <form id="formOfertas" novalidate>
+        <input type="email" id="ofertasEmail" placeholder="Tu email para las ofertas" required autocomplete="email">
+        <button type="submit" class="btn btn-ghost" id="btnOfertas"><span>Obtener Ofertas</span></button>
+      </form>
+      <div id="ofertasMsg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
     </div>
-    <div class="ie-cstatus" id="compositeStatus"></div>
-    <button class="ie-cdownload" id="compositeDownload" hidden>↓ Descargar las 20 fotos como archivos</button>
   </div>
-  <div class="hint">
-    <b>Otras opciones individuales:</b><br>
-    1. <b>Carpeta local</b>: arrastra la foto a <code>assets/products/&lt;nombre&gt;/</code> y F5.<br>
-    2. <b>URLs en los campos de abajo</b>: pega un link (las de tiendas suelen
-       fallar por anti-hotlinking; Imgbb.com o Wikimedia sí funcionan).
+</div>
+
+<!-- MODAL CONFIRMACIÓN PEDIDO -->
+<div id="modal-confirmacion" role="dialog" aria-modal="true" aria-labelledby="mconfTitulo">
+  <div class="mconf-box">
+    <p class="mconf-eyebrow">Confirmar pedido</p>
+    <h2 class="mconf-title" id="mconfTitulo">¿Confirmas el pedido?</h2>
+    <div class="mconf-product">
+      <p class="mconf-marca" id="mconfMarca"></p>
+      <p class="mconf-nombre" id="mconfNombre"></p>
+      <div class="mconf-precio">
+        <span class="ps">$</span><span id="mconfPrecio"></span>
+      </div>
+      <p class="mconf-sub">Se abrirá WhatsApp para finalizar la compra.</p>
+    </div>
+    <div class="mconf-actions">
+      <button id="mconfCancelar"><span>Cancelar</span></button>
+      <button id="mconfAceptar"><span>Confirmar pedido →</span></button>
+    </div>
   </div>
-  <div id="ieList"></div>
-  <div class="ie-actions">
-    <button class="reset" id="ieReset">Reset todo</button>
-    <button class="save" id="ieSave">Guardar</button>
-  </div>
-</aside>
+</div>
 
 <script>
 /* ============================================================
@@ -2530,7 +2910,7 @@ function imgCandidates(p){
   return urls;
 }
 
-function bottleHTML(p){
+function bottleHTML(p, eager){
   /* Si ya sabemos qué URL funciona (override o cache previa), montamos
      el <img> con src directo y la clase has-image para ocultar el SVG.
      Resultado: cero flash del SVG al re-renderizar. */
@@ -2539,9 +2919,10 @@ function bottleHTML(p){
   const cls = isKnown ? ' has-image' : '';
   const srcAttr = isKnown ? ` src="${(knownUrl||'').replace(/"/g,'&quot;')}"` : '';
   const initialOpacity = isKnown ? 1 : 0;
+  const loadAttr = eager ? 'eager' : 'lazy';
   return `<div class="bottle-host${cls}" data-slug="${p.slug}" style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center">
     ${bottleSVG(p)}
-    <img class="prod-img" alt="${p.marca} ${p.nombre}"${srcAttr}
+    <img class="prod-img" alt="${p.marca} ${p.nombre}"${srcAttr} loading="${loadAttr}"
          style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:transparent;opacity:${initialOpacity};transition:opacity .4s ease">
   </div>`;
 }
@@ -2600,7 +2981,26 @@ function bindBottleImages(){
 }
 
 function waLink(p){
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hola Vant Store, me interesa' + p.nombre + ' (' + p.marca + ')')}`;
+  /* Formato estructurado para que el bot n8n pueda parsearlo fácilmente.
+     Campos en líneas separadas con etiqueta fija: "Clave: Valor" */
+  const precio = p.precioOld
+    ? `$${p.precio} (antes $${p.precioOld})`
+    : `$${p.precio}`;
+
+  const msg = [
+    '🛍️ PEDIDO VANT STORE',
+    '',
+    `Producto: ${p.nombre}`,
+    `Marca: ${p.marca}`,
+    `Precio: ${precio}`,
+    `Tipo: ${p.tipo}`,
+    `Tamaño: ${p.ml}`,
+    `Género: ${p.genero}`,
+    '',
+    'Por favor, indícame los datos de pago para finalizar mi pedido.'
+  ].join('\n');
+
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 }
 function waLinkGeneral(text){
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text || 'Hola Vant Store, me gustaría una recomendación')}`;
@@ -2746,15 +3146,17 @@ function closeCart(){
   document.body.style.overflow = '';
 }
 
-/* Icono carrito del nav */
-const cartToggleNav = document.getElementById('cartToggleNav');
-if(cartToggleNav){
-  cartToggleNav.addEventListener('click', e => {
-    e.preventDefault();
-    e.stopPropagation();
-    openCart();
+/* Carrito global: vincula TODOS los elementos .cart-toggle */
+function bindCartToggles(){
+  document.querySelectorAll('.cart-toggle').forEach(btn => {
+    if(btn._cartBound) return; btn._cartBound = true;
+    btn.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      openCart();
+    });
   });
 }
+bindCartToggles();
 document.getElementById('cartClose').addEventListener('click', closeCart);
 document.getElementById('cartBackdrop').addEventListener('click', closeCart);
 document.addEventListener('keydown', e => {
@@ -2807,7 +3209,7 @@ let heroIdx = 0, heroTimer;
 function renderHero(){
   heroStage.innerHTML = heroPool.map((p,i)=>`
     <div class="hero-slide ${i===heroIdx?'active':''}" data-i="${i}">
-      ${bottleHTML(p)}
+      ${bottleHTML(p, true)}
       <div class="hero-meta">
         <div class="brand-tag">${p.marca}</div>
         <div class="name">${p.nombre}</div>
@@ -2854,61 +3256,40 @@ function cardHTML(p){
   </article>`;
 }
 
-/* Best sellers grid (top 4 con bestseller=true) */
-function renderBestGrid(){
-  document.getElementById('bestGrid').innerHTML =
-    products.filter(p=>p.bestseller).sort((a,b)=>a.orden-b.orden).slice(0,4).map(cardHTML).join('');
-}
-function renderNewGrid(){
-  document.getElementById('newGrid').innerHTML =
-    products.filter(p=>p.nuevo).slice(0,4).map(cardHTML).join('');
-}
 
 /* ============================================================
    TILES dinámicos — preview con el best-seller de cada categoría
    ============================================================ */
-function bestOf(filterFn){
-  return products.filter(filterFn).sort((a,b)=>a.orden-b.orden)[0];
-}
+function randFrom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
 function renderTiles(){
+  const tilePools = [
+    products.filter(p => p.genero === 'Mujer'),
+    products.filter(p => p.genero === 'Hombre'),
+    products.filter(p => p.bestseller),
+    products.filter(p => p.oferta)
+  ];
   const tileConfig = [
-    {
-      tag: 'Para ella', label: 'Mujer', orn: '♀',
-      jump: 'coleccion', filter: { genero: 'Mujer' },
-      best: bestOf(p => p.genero === 'Mujer' && p.bestseller) || bestOf(p => p.genero === 'Mujer')
-    },
-    {
-      tag: 'Para él', label: 'Hombre', orn: '♂',
-      jump: 'coleccion', filter: { genero: 'Hombre' },
-      best: bestOf(p => p.genero === 'Hombre' && p.bestseller) || bestOf(p => p.genero === 'Hombre')
-    },
-    {
-      tag: 'Top ventas', label: 'Bestsellers', orn: '★',
-      jump: 'bestsellers', filter: null,
-      best: bestOf(p => p.bestseller)
-    },
-    {
-      tag: 'Promo · 2026', label: 'Ofertas', orn: '%',
-      jump: 'coleccion', filter: { oferta: true },
-      best: bestOf(p => p.oferta)
-    }
+    { tag: 'Para ella',   label: 'Mujer',       orn: '♀', jump: 'coleccion',   filter: { genero: 'Mujer' }  },
+    { tag: 'Para él',     label: 'Hombre',      orn: '♂', jump: 'coleccion',   filter: { genero: 'Hombre' } },
+    { tag: 'Top ventas',  label: 'Bestsellers', orn: '★', jump: 'bestsellers', filter: null                  },
+    { tag: 'Promo · 2026',label: 'Ofertas',     orn: '%', jump: 'coleccion',   filter: { oferta: true }      }
   ];
 
   const grid = document.getElementById('tilesGrid');
   if(!grid) return;
-  grid.innerHTML = tileConfig.map(c => {
+  grid.innerHTML = tileConfig.map((c, i) => {
+    const pool = tilePools[i];
+    const p = pool.length ? randFrom(pool) : null;
     const filterAttr = c.filter ? `data-filter='${JSON.stringify(c.filter)}'` : '';
-    const previewHTML = c.best ? bottleHTML(c.best) : '';
-    const bestName = c.best ? c.best.nombre : '—';
-    const bestBrand = c.best ? c.best.marca : '';
-    return `<a class="tile" data-jump="${c.jump}" ${filterAttr}>
+    return `<a class="tile" data-jump="${c.jump}" ${filterAttr} data-tile="${i}">
       <div class="tile-bg"></div>
-      <div class="tile-preview">${previewHTML}</div>
+      <div class="tile-preview">${p ? bottleHTML(p) : ''}</div>
       <div class="tile-orn">${c.orn}</div>
       <div class="tile-content">
         <span class="tag">${c.tag}</span>
         <h3>${c.label}</h3>
-        <p class="tile-best">${bestBrand} · <em>${bestName}</em></p>
+        <p class="tile-best">${p ? escapeHTML(p.marca) + ' · <em>' + escapeHTML(p.nombre) + '</em>' : ''}</p>
       </div>
       <span class="arrow">→</span>
     </a>`;
@@ -2918,9 +3299,75 @@ function renderTiles(){
   bindBottleImages();
 }
 
-renderBestGrid();
-renderNewGrid();
 renderTiles();
+
+/* Rotación dinámica de tiles — cambia el perfume mostrado cada ~3.5 s */
+(function(){
+  const tilePools = [
+    products.filter(p => p.genero === 'Mujer'),
+    products.filter(p => p.genero === 'Hombre'),
+    products.filter(p => p.bestseller),
+    products.filter(p => p.oferta)
+  ];
+  /* Mezclamos cada pool para que el orden sea distinto cada visita */
+  tilePools.forEach(pool => pool.sort(() => Math.random() - 0.5));
+  const counters = [0, 0, 0, 0];
+
+  function rotateTile(i){
+    const tile = document.querySelector(`[data-tile="${i}"]`);
+    if(!tile) return;
+    const pool = tilePools[i];
+    if(!pool || pool.length < 2) return;
+
+    counters[i] = (counters[i] + 1) % pool.length;
+    const p = pool[counters[i]];
+
+    const preview = tile.querySelector('.tile-preview');
+    const caption = tile.querySelector('.tile-best');
+    if(!preview || !caption) return;
+
+    /* Fade out */
+    preview.style.transition = 'opacity 0.35s ease';
+    caption.style.transition  = 'opacity 0.35s ease';
+    preview.style.opacity = '0';
+    caption.style.opacity = '0';
+
+    setTimeout(() => {
+      preview.innerHTML = bottleHTML(p);
+      caption.innerHTML = escapeHTML(p.marca) + ' · <em>' + escapeHTML(p.nombre) + '</em>';
+      bindBottleImages();
+      /* Fade in */
+      preview.style.opacity = '1';
+      caption.style.opacity = '1';
+    }, 370);
+  }
+
+  /* Cada tile rota cada 3.5 s, escalonado 900 ms entre sí */
+  tilePools.forEach((pool, i) => {
+    if(pool.length < 2) return;
+    setTimeout(() => { setInterval(() => rotateTile(i), 3500); }, i * 900);
+  });
+})();
+
+/* ============================================================
+   OFERTAS DESTACADAS (landing) — selección aleatoria
+   ============================================================ */
+const productosOferta = products.filter(p => p.oferta);
+
+function renderizarOfertasAleatorias(){
+  const grid = document.getElementById('ofertasGrid');
+  if(!grid) return;
+  /* Mezclar aleatoriamente y tomar 4 */
+  const seleccion = [...productosOferta]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
+  grid.innerHTML = seleccion.map(cardHTML).join('');
+  bindJumps();
+  bindCardEvents();
+  bindBottleImages();
+}
+
+renderizarOfertasAleatorias();
 
 /* ============================================================
    FAMILIAS
@@ -2965,9 +3412,13 @@ brandChipsEl.innerHTML =
 /* ============================================================
    ESTADO + FILTROS
    ============================================================ */
-const state = { genero:'', marca:'', tipo:'', familia:'', priceMin:null, priceMax:null, sort:'orden', slug:'', oferta:false };
+const state = { genero:'', marca:'', tipo:'', familia:'', priceMin:null, priceMax:null, sort:'orden', slug:'', oferta:false, query:'', _shopOrigin:null };
 const catGrid = document.getElementById('catalogGrid');
 const catCount = document.getElementById('catCount');
+const shopPagination = document.getElementById('shopPagination');
+const ITEMS_PER_PAGE = 30;
+let shopPage = 1;
+let currentList = [];
 
 function setFilters(obj){
   Object.assign(state, obj);
@@ -3008,6 +3459,28 @@ function renderActiveChips(){
       applyFilters();
     });
   });
+
+  // Chip "← Volver" cuando el usuario eliminó todos los filtros pero había un origen
+  const hasActive = active.length > 0;
+  const hasOrigin = state._shopOrigin && Object.keys(state._shopOrigin).length > 0;
+  const originKey = hasOrigin ? Object.keys(state._shopOrigin)[0] : null;
+  const originLabel = hasOrigin ? (
+    state._shopOrigin.genero  ? state._shopOrigin.genero :
+    state._shopOrigin.marca   ? state._shopOrigin.marca :
+    state._shopOrigin.familia ? state._shopOrigin.familia :
+    state._shopOrigin.tipo    ? state._shopOrigin.tipo :
+    state._shopOrigin.oferta  ? 'Ofertas' : null
+  ) : null;
+  if(!hasActive && hasOrigin && originLabel){
+    const orig = document.createElement('button');
+    orig.className = 'origin-chip';
+    orig.innerHTML = `← ${originLabel}`;
+    orig.title = `Volver al filtro: ${originLabel}`;
+    orig.addEventListener('click', () => {
+      openShop(state._shopOrigin);
+    });
+    chipsEl.appendChild(orig);
+  }
   // Actualizar contador del botón "Filtros"
   const cnt = document.getElementById('activeCount');
   if(cnt){
@@ -3016,7 +3489,8 @@ function renderActiveChips(){
   }
 }
 function applyFilters(){
-  let list = products.filter(p=>{
+  const ql = state.query ? state.query.toLowerCase() : '';
+  currentList = products.filter(p=>{
     if(state.slug    && p.slug    !== state.slug) return false;
     if(state.genero  && p.genero  !== state.genero) return false;
     if(state.marca   && p.marca   !== state.marca) return false;
@@ -3025,16 +3499,44 @@ function applyFilters(){
     if(state.oferta  && !p.oferta) return false;
     if(state.priceMin!==null && p.precio < state.priceMin) return false;
     if(state.priceMax!==null && p.precio > state.priceMax) return false;
+    if(ql && !p.nombre.toLowerCase().includes(ql) && !p.marca.toLowerCase().includes(ql) &&
+       !p.familia.toLowerCase().includes(ql) && !p.tipo.toLowerCase().includes(ql) &&
+       !p.notas.some(n=>n.toLowerCase().includes(ql))) return false;
     return true;
   });
-  if(state.sort==='precio-asc')  list.sort((a,b)=>a.precio-b.precio);
-  else if(state.sort==='precio-desc') list.sort((a,b)=>b.precio-a.precio);
-  else if(state.sort==='nombre')      list.sort((a,b)=>a.nombre.localeCompare(b.nombre));
-  else                                list.sort((a,b)=>a.orden-b.orden);
-  catGrid.innerHTML = list.map(cardHTML).join('');
-  catCount.textContent = `${list.length} producto${list.length!==1?'s':''}`;
+  if(state.sort==='precio-asc')  currentList.sort((a,b)=>a.precio-b.precio);
+  else if(state.sort==='precio-desc') currentList.sort((a,b)=>b.precio-a.precio);
+  else if(state.sort==='nombre')      currentList.sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  else                                currentList.sort((a,b)=>a.orden-b.orden);
+  shopPage = 1;
+  updateShopTitle();
+  renderPage();
+}
+function renderPage(){
+  const total = currentList.length;
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+  shopPage = Math.min(Math.max(shopPage, 1), totalPages);
+  const start = (shopPage - 1) * ITEMS_PER_PAGE;
+  const slice = currentList.slice(start, start + ITEMS_PER_PAGE);
+  catGrid.innerHTML = slice.map(cardHTML).join('');
+  catCount.textContent = `${total} producto${total!==1?'s':''}`;
   catGrid.classList.remove('in'); void catGrid.offsetWidth; catGrid.classList.add('in');
   bindCardEvents();
+  renderPagination(totalPages);
+}
+function renderPagination(totalPages){
+  if(totalPages <= 1){ shopPagination.innerHTML = ''; return; }
+  shopPagination.innerHTML = `
+    <button id="pagPrev" ${shopPage===1?'disabled':''}>← Anterior</button>
+    <span class="pag-info">${shopPage} / ${totalPages}</span>
+    <button id="pagNext" ${shopPage===totalPages?'disabled':''}>Siguiente →</button>
+  `;
+  shopPagination.querySelector('#pagPrev').addEventListener('click',()=>{
+    if(shopPage > 1){ shopPage--; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:'smooth'}); }
+  });
+  shopPagination.querySelector('#pagNext').addEventListener('click',()=>{
+    if(shopPage < totalPages){ shopPage++; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:'smooth'}); }
+  });
 }
 
 /* Chip clicks (en panel de filtros) */
@@ -3055,12 +3557,44 @@ document.getElementById('priceMin').addEventListener('input',e=>{ state.priceMin
 document.getElementById('priceMax').addEventListener('input',e=>{ state.priceMax = e.target.value ? +e.target.value : null; applyFilters(); });
 document.getElementById('sort').addEventListener('change',e=>{ state.sort = e.target.value; applyFilters(); });
 document.getElementById('clearFilters').addEventListener('click',()=>{
+  state.query = '';
+  const ssi = document.getElementById('shopSearchInput');
+  const ssp = document.getElementById('shopSearchPanel');
+  if(ssi) ssi.value = '';
+  if(ssp) ssp.value = '';
   setFilters({genero:'',marca:'',tipo:'',familia:'',priceMin:null,priceMax:null,sort:'orden',slug:'',oferta:false});
   document.getElementById('sort').value = 'orden';
   applyFilters();
 });
 
 applyFilters();
+
+/* ============================================================
+   TÍTULO DINÁMICO DEL SHOP según filtros activos
+   ============================================================ */
+function updateShopTitle(){
+  /* Prioridad: género > marca > familia > tipo > oferta sola > todo */
+  let title = 'Stock completo', eyebrow = 'Toda la colección';
+  if(state.tipo)    { title = state.tipo;    eyebrow = 'Tipo de fragancia'; }
+  if(state.familia) { title = state.familia; eyebrow = 'Familia olfativa'; }
+  if(state.marca)   { title = state.marca;   eyebrow = 'Marca'; }
+  if(state.genero)  { title = state.genero;  eyebrow = 'Perfumes para'; }
+  /* Oferta sola (sin otros filtros que ya tienen prioridad) */
+  if(state.oferta && !state.genero && !state.marca && !state.familia && !state.tipo){
+    title = 'Ofertas'; eyebrow = 'Selección de la semana';
+  }
+  /* Si oferta activa + otro filtro → añadir tag visual al eyebrow */
+  if(state.oferta && (state.genero || state.marca || state.familia || state.tipo)){
+    eyebrow = eyebrow + ' · Oferta';
+  }
+  if(state.query){
+    eyebrow = 'Búsqueda · ' + state.query;
+  }
+  const shopTitleEl   = document.getElementById('shopTitle');
+  const shopEyebrowEl = document.getElementById('shopEyebrow');
+  if(shopTitleEl)   shopTitleEl.textContent   = title;
+  if(shopEyebrowEl) shopEyebrowEl.textContent = eyebrow;
+}
 
 /* ============================================================
    PAGE TRANSITION (envuelve navegación interna)
@@ -3115,10 +3649,20 @@ const shop = document.getElementById('shop');
 const shopClose = document.getElementById('shopClose');
 const shopFilters = document.getElementById('shopFilters');
 const filtersToggle = document.getElementById('filtersToggle');
-const shopTitle = document.getElementById('shopTitle');
-const shopEyebrow = document.getElementById('shopEyebrow');
 
 function openShop(filterObj){
+  // Guardar el origen del filtro para el breadcrumb
+  state._shopOrigin = (filterObj && Object.keys(filterObj).length)
+    ? Object.assign({}, filterObj)
+    : null;
+
+  // Resetear búsqueda
+  state.query = '';
+  const ssi = document.getElementById('shopSearchInput');
+  const ssp = document.getElementById('shopSearchPanel');
+  if(ssi) ssi.value = '';
+  if(ssp) ssp.value = '';
+
   // Setear filtros
   if(filterObj && Object.keys(filterObj).length){
     setFilters({
@@ -3133,17 +3677,6 @@ function openShop(filterObj){
   } else {
     setFilters({genero:'',marca:'',tipo:'',familia:'',oferta:false,priceMin:null,priceMax:null,slug:''});
   }
-  // Título dinámico
-  let title = 'Stock completo', eyebrow = 'Toda la colección';
-  if(filterObj){
-    if(filterObj.genero)  { title = filterObj.genero; eyebrow = 'Perfumes para'; }
-    if(filterObj.marca)   { title = filterObj.marca;  eyebrow = 'Marca'; }
-    if(filterObj.familia) { title = filterObj.familia; eyebrow = 'Familia olfativa'; }
-    if(filterObj.tipo)    { title = filterObj.tipo;   eyebrow = 'Tipo de fragancia'; }
-    if(filterObj.oferta)  { title = 'Ofertas';        eyebrow = 'Selección de la semana'; }
-  }
-  shopTitle.textContent = title;
-  shopEyebrow.textContent = eyebrow;
   // Abrir overlay
   shop.classList.add('open');
   shop.setAttribute('aria-hidden','false');
@@ -3154,12 +3687,14 @@ function openShop(filterObj){
   applyFilters();
   // Scroll al top del overlay
   shop.scrollTop = 0;
+  saveNavState();
 }
 function closeShop(){
   shop.classList.remove('open');
   shop.setAttribute('aria-hidden','true');
   document.body.classList.remove('shop-locked');
   shopFilters.classList.remove('open');
+  saveNavState();
 }
 shopClose.addEventListener('click', () => pageTransitionTo(closeShop));
 filtersToggle.addEventListener('click', () => {
@@ -3245,9 +3780,40 @@ bindCardEvents();
    ============================================================ */
 const modal = document.getElementById('modal');
 const modalInner = document.getElementById('modalInner');
+
+function getRelated(p){
+  const MAX = 8, MIN_FILL = 4;
+  const others = products.filter(x => x.slug !== p.slug);
+
+  /* Score: +3 mismo tipo, +2 misma familia, +1 mismo género */
+  const scored = others.map(x => {
+    let score = 0;
+    if(x.tipo    === p.tipo)    score += 3;
+    if(x.familia === p.familia) score += 2;
+    if(x.genero  === p.genero)  score += 1;
+    return { p: x, score };
+  }).sort((a, b) => b.score - a.score);
+
+  /* Tomar los que tienen score > 0 primero */
+  let result = scored.filter(x => x.score > 0).slice(0, MAX).map(x => x.p);
+
+  /* Rellenar con destacados si faltan */
+  if(result.length < MIN_FILL){
+    const used = new Set(result.map(x => x.slug));
+    const fill = others
+      .filter(x => !used.has(x.slug))
+      .sort((a, b) => (b.oferta ? 1 : 0) - (a.oferta ? 1 : 0) || a.orden - b.orden)
+      .slice(0, MIN_FILL - result.length);
+    result = result.concat(fill);
+  }
+
+  return result.slice(0, MAX);
+}
+
 function openModal(slug){
   const p = products.find(x=>x.slug===slug);
   if(!p) return;
+  const related = getRelated(p);
   modalInner.innerHTML = `
     <button class="modal-close" aria-label="Cerrar">×</button>
     <div class="modal-img">${bottleHTML(p)}</div>
@@ -3260,15 +3826,33 @@ function openModal(slug){
       <p class="copy">${p.copy}</p>
       <div class="price-row">
         <div class="price-wrap">
-          ${p.precioOld ? `<span class="price-old" style="display:block;color:var(--bone-soft);text-decoration:line-through;font-size:14px">${p.precioOld} $</span>` : ''}
-          <span class="price" style="${p.precioOld?'color:var(--gold)':''}">${p.precio} $</span>
+          ${p.precioOld ? `<span class="price-old"><span class="price-sign">$</span>${p.precioOld}</span>` : ''}
+          <span class="price${p.precioOld?' sale':''}"><span class="price-sign">$</span>${p.precio}</span>
         </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-modal-cart="${p.slug}"><span>Añadir al carrito</span></button>
           <button class="btn btn-gold" data-modal-wa="${p.slug}"><span>Pedir directo</span></button>
         </div>
       </div>
-    </div>`;
+    </div>
+    ${related.length ? `
+    <div class="modal-related">
+      <div class="modal-related-title">Perfumes Relacionados</div>
+      <div class="modal-related-grid">
+        ${related.map(r => `
+        <div class="rel-card" data-open="${r.slug}">
+          <div class="rel-card-img">
+            ${bottleHTML(r)}
+          </div>
+          <div class="rel-card-body">
+            <div class="rel-card-brand">${r.marca}</div>
+            <div class="rel-card-name">${r.nombre}</div>
+            <div class="rel-card-price${r.precioOld?' sale':''}"><span class="ps">$</span>${r.precio}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+  `;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   modalInner.querySelector('.modal-close').addEventListener('click', closeModal);
@@ -3283,11 +3867,19 @@ function openModal(slug){
     }, 1500);
   });
 
-  /* Botón "Pedir directo" → abre WhatsApp con window.open (más fiable) */
+  /* Botón "Pedir directo" → confirmación → WhatsApp */
   const waBtn = modalInner.querySelector('[data-modal-wa]');
-  if(waBtn) waBtn.addEventListener('click', () => {
+  if(waBtn) waBtn.addEventListener('click', e => {
+    e.stopPropagation();
     const product = products.find(x => x.slug === waBtn.dataset.modalWa);
-    if(product) window.open(waLink(product), '_blank', 'noopener,noreferrer');
+    if(!product) return;
+
+    window.abrirModalPedido(product);
+  });
+
+  /* Tarjetas de relacionados */
+  modalInner.querySelectorAll('.rel-card[data-open]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.open));
   });
 
   bindHoverable();
@@ -3297,23 +3889,8 @@ function closeModal(){ modal.classList.remove('open'); document.body.style.overf
 modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeImgEditor(); } });
 
-/* ============================================================
-   CURSOR (instantáneo · 1:1 sin lerp)
-   ============================================================ */
-const cur = document.getElementById('cursor');
-document.addEventListener('mousemove', e=>{
-  cur.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
-});
-function bindHoverable(){
-  document.querySelectorAll('a, button, .card, .tile, .fam, .opt, [data-jump], [data-open]').forEach(el=>{
-    if(el._hbound) return; el._hbound = true;
-    el.addEventListener('mouseenter',()=>cur.classList.add('hover'));
-    el.addEventListener('mouseleave',()=>cur.classList.remove('hover'));
-  });
-}
-bindHoverable();
-document.addEventListener('mousedown',()=>cur.classList.add('click'));
-document.addEventListener('mouseup',()=>cur.classList.remove('click'));
+/* cursor del navegador restaurado */
+function bindHoverable(){}
 
 /* ============================================================
    PROGRESS bar
@@ -3426,6 +4003,29 @@ searchInput.addEventListener('keydown', e => {
   }
 });
 
+/* ============================================================
+   BÚSQUEDA INLINE EN SHOP
+   ============================================================ */
+(function(){
+  const inputs = [
+    document.getElementById('shopSearchInput'),
+    document.getElementById('shopSearchPanel')
+  ].filter(Boolean);
+
+  function onSearch(val){
+    state.query = val.trim();
+    shopPage = 1;
+    applyFilters();
+    /* Sincronizar ambos inputs */
+    inputs.forEach(inp => { if(inp.value !== val) inp.value = val; });
+  }
+
+  inputs.forEach(inp => {
+    inp.addEventListener('input', e => onSearch(e.target.value));
+    inp.addEventListener('keydown', e => { if(e.key === 'Escape'){ onSearch(''); } });
+  });
+})();
+
 bindBottleImages(); // Initial bind
 
 /* Hook applyFilters para re-bind al cambiar filtros */
@@ -3443,270 +4043,276 @@ renderHero = function(){
 };
 renderHero();
 
-/* ============================================================
-   IMG EDITOR
-   ============================================================ */
-const ieToggle = document.getElementById('ieToggle');
-const ieClose  = document.getElementById('ieClose');
-const ieList   = document.getElementById('ieList');
-const ieSave   = document.getElementById('ieSave');
-const ieReset  = document.getElementById('ieReset');
-const imgEditor= document.getElementById('imgEditor');
+function closeImgEditor(){}
 
-function renderEditor(){
-  const stored = overrides; // memoria viva, ya saneada al cargar
-  ieList.innerHTML = products.map(p => {
-    const cur = stored[p.slug] || '';
-    const isCropped = cur.startsWith('data:image/');
-    const inputValue = isCropped ? '' : cur;
-    const inputPlaceholder = isCropped
-      ? '✓ Recortada del cropper (deja vacío para conservar)'
-      : 'https://...';
-    /* USAR safeURL + escapeHTML para evitar XSS por inyección en src */
-    const safeCur = safeURL(cur);
-    const thumbHTML = safeCur
-      ? `<img src="${escapeHTML(safeCur)}" alt="" onerror="this.outerHTML='<span class=&quot;empty&quot;>error</span>'">`
-      : `<span class="empty">SVG</span>`;
-    return `<div class="ie-row" data-slug="${escapeHTML(p.slug)}">
-      <span class="lbl">${escapeHTML(p.marca)} · ${escapeHTML(p.nombre)}${isCropped ? ' · <span style="color:#6ed29a">✓ recortada</span>' : ''}</span>
-      <input type="url" placeholder="${escapeHTML(inputPlaceholder)}" value="${escapeHTML(inputValue)}" data-input="${escapeHTML(p.slug)}">
-      <div class="ie-thumb" id="thumb-${escapeHTML(p.slug)}">${thumbHTML}</div>
-    </div>`;
-  }).join('');
-  ieList.querySelectorAll('input[data-input]').forEach(inp => {
-    inp.addEventListener('input', () => {
-      const slug = inp.dataset.input;
-      const thumb = document.getElementById('thumb-'+slug);
-      if(!thumb) return;
-      const safeV = safeURL(inp.value.trim());
-      if(safeV){
-        /* Construcción DOM, NO innerHTML con interpolación */
-        thumb.textContent = '';
-        const img = document.createElement('img');
-        img.src = safeV;
-        img.alt = '';
-        img.onerror = () => {
-          thumb.textContent = '';
-          const span = document.createElement('span');
-          span.className = 'empty';
-          span.textContent = 'URL inválida';
-          thumb.appendChild(span);
-        };
-        thumb.appendChild(img);
-      } else if(overrides[slug] && overrides[slug].startsWith('data:image/')){
-        thumb.textContent = '';
-        const img = document.createElement('img');
-        img.src = overrides[slug];
-        img.alt = '';
-        thumb.appendChild(img);
-      } else {
-        thumb.textContent = '';
-        const span = document.createElement('span');
-        span.className = 'empty';
-        span.textContent = 'SVG';
-        thumb.appendChild(span);
-      }
-    });
-  });
-}
-renderEditor();
-function closeImgEditor(){ imgEditor.classList.remove('open'); }
-ieToggle.addEventListener('click', () => imgEditor.classList.toggle('open'));
-ieClose.addEventListener('click', closeImgEditor);
-
-ieSave.addEventListener('click', () => {
-  /* Empezamos con los overrides existentes (incl. data URLs del cropper)
-     y solo sobreescribimos los slugs cuyo input tenga URL nueva VÁLIDA */
-  const map = { ...overrides };
-  ieList.querySelectorAll('input[data-input]').forEach(inp => {
-    const slug = inp.dataset.input;
-    const safe = safeURL(inp.value.trim());
-    if(safe) map[slug] = safe;  // solo URLs sanas (http/https/data:image)
-  });
-  try { saveOverrides(map); } catch(e){ console.warn('localStorage lleno:', e); }
-  Object.keys(overrides).forEach(k => delete overrides[k]);
-  Object.assign(overrides, map);
-  // Re-render todo
-  renderHero();
-  renderBestGrid();
-  renderNewGrid();
-  applyFilters();
-  bindBottleImages();
-  closeImgEditor();
-  ieToggle.style.background = '#5fc88a';
-  ieToggle.textContent = '✓';
-  setTimeout(()=>{ ieToggle.style.background=''; ieToggle.textContent='⚙'; }, 1200);
-});
-
-ieReset.addEventListener('click', () => {
-  if(!confirm('¿Borrar todas las URLs personalizadas?')) return;
-  localStorage.removeItem(IMG_KEY);
-  Object.keys(overrides).forEach(k => delete overrides[k]);
-  renderEditor();
-  ieSave.click();
-});
 
 /* ============================================================
-   COMPOSITE IMAGE CROPPER
-   Mapea la grid 4×5 de la imagen subida a los 20 productos
-   por su orden visual (orden 1-20 del catálogo).
+   WEBHOOKS · Newsletter y Ofertas → n8n test mode
    ============================================================ */
-const COMPOSITE_ORDER = [
-  // Fila 1 (1-5)
-  'sauvage', 'acqua-di-gio', 'good-girl-blush', 'club-de-nuit-intense', 'ciel',
-  // Fila 2 (6-10)
-  'black-opium', 'la-vie-est-belle', 'jadore', 'coco-mademoiselle', 'lady-million',
-  // Fila 3 (11-15)
-  'olympea', 'libre', 'si', 'idole', '1-million',
-  // Fila 4 (16-20)
-  'phantom', 'invictus', 'y-edp', '212-vip-men', 'bottled'
-];
+const WH_SUSCRIBIR = 'http://localhost:5678/webhook-test/suscribir-vant';
+const WH_OFERTAS   = 'http://localhost:5678/webhook-test/obtener-ofertas';
 
-const compositeInput = document.getElementById('compositeInput');
-const compositeDrop  = document.getElementById('compositeDrop');
-const compositeStatus= document.getElementById('compositeStatus');
-const compositeDownload = document.getElementById('compositeDownload');
+/**
+ * enviarFormulario(event, url)
+ * Envía el email del formulario al webhook de n8n indicado.
+ *
+ * CORS: se usa Content-Type: text/plain para que el navegador NO
+ * envíe una petición OPTIONS de preflight, lo que evita los errores
+ * de CORS con n8n en localhost. El body sigue siendo JSON válido y
+ * n8n lo parsea igual.
+ *
+ * @param {Event}  event   - El evento submit del formulario
+ * @param {string} url     - URL del webhook de n8n
+ * @param {string} emailId - ID del input de email
+ * @param {string} origen  - Etiqueta de origen para el payload
+ * @param {HTMLElement} msgEl  - Elemento donde mostrar el estado
+ * @param {HTMLElement} btn    - Botón de submit
+ * @param {string} okMsg   - Mensaje de éxito
+ */
+async function enviarFormulario(event, url, emailId, origen, msgEl, btn, okMsg){
+  event.preventDefault();
 
-let lastCrops = null;
+  const email = document.getElementById(emailId).value.trim();
+  if(!email) return;
 
-compositeDrop.addEventListener('click', () => compositeInput.click());
-compositeInput.addEventListener('change', e => {
-  if(e.target.files && e.target.files[0]) handleComposite(e.target.files[0]);
-});
+  /* Estado de carga */
+  btn.disabled = true;
+  const labelOrig = btn.querySelector('span').textContent;
+  btn.querySelector('span').textContent = 'Enviando…';
+  msgEl.textContent = '';
+  msgEl.style.color = '';
 
-['dragenter','dragover'].forEach(evt =>
-  compositeDrop.addEventListener(evt, e => { e.preventDefault(); compositeDrop.classList.add('dragover'); })
-);
-['dragleave','drop'].forEach(evt =>
-  compositeDrop.addEventListener(evt, e => { e.preventDefault(); compositeDrop.classList.remove('dragover'); })
-);
-compositeDrop.addEventListener('drop', e => {
-  const f = e.dataTransfer.files && e.dataTransfer.files[0];
-  if(f) handleComposite(f);
-});
+  const payload = JSON.stringify({
+    email,
+    origen,
+    timestamp: new Date().toISOString()
+  });
 
-function handleComposite(file){
-  if(!file.type.startsWith('image/')){
-    compositeStatus.textContent = '✗ Tiene que ser una imagen';
-    compositeStatus.className = 'ie-cstatus err';
-    return;
-  }
-  compositeStatus.textContent = 'Leyendo imagen…';
-  compositeStatus.className = 'ie-cstatus';
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => cropAndDistribute(img);
-    img.onerror = () => {
-      compositeStatus.textContent = '✗ No se pudo leer la imagen';
-      compositeStatus.className = 'ie-cstatus err';
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function cropAndDistribute(img){
-  console.log('[CROPPER] Iniciando con imagen', img.width, 'x', img.height);
-  const cols = 5, rows = 4;
-  const cellW = img.width / cols;
-  const cellH = img.height / rows;
-
-  const padX = cellW * 0.03;
-  const padY = cellH * 0.02;
-  const cropH = cellH * 0.78;
-
-  /* Limite de salida para no saturar localStorage */
-  const MAX_OUT_W = 360;
-
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  const map = {};        // SOLO los recortes, sin URLs viejas
-  const crops = {};
-
-  for(let r = 0; r < rows; r++){
-    for(let c = 0; c < cols; c++){
-      const slug = COMPOSITE_ORDER[r * cols + c];
-      if(!slug) continue;
-      const sx = c * cellW + padX;
-      const sy = r * cellH + padY;
-      const sw = cellW - padX * 2;
-      const sh = cropH - padY;
-
-      /* Escalar salida si la celda es muy grande */
-      const scale = Math.min(1, MAX_OUT_W / sw);
-      const outW = Math.round(sw * scale);
-      const outH = Math.round(sh * scale);
-
-      canvas.width = outW;
-      canvas.height = outH;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, outW, outH);
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, outW, outH);
-
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-      map[slug] = dataUrl;
-      crops[slug] = dataUrl;
-    }
-  }
-
-  /* APLICAR EN MEMORIA SIEMPRE */
-  Object.keys(overrides).forEach(k => delete overrides[k]);
-  Object.assign(overrides, map);
-  lastCrops = crops;
-
-  /* Intentar persistir, con fallback a solo memoria */
-  let savedToLS = false;
   try {
-    saveOverrides(map);
-    savedToLS = true;
+    /*
+     * Content-Type: text/plain evita el preflight OPTIONS de CORS.
+     * n8n recibe el JSON en el body y lo parsea correctamente
+     * independientemente del Content-Type declarado.
+     */
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: payload
+    });
+
+    if(res.ok){
+      msgEl.textContent = okMsg;
+      msgEl.style.color = 'var(--gold)';
+      event.target.reset();
+    } else {
+      msgEl.textContent = `Error ${res.status}: intenta de nuevo.`;
+      msgEl.style.color = '#e07a7a';
+    }
+
   } catch(err){
-    console.warn('[CROPPER] localStorage lleno, manteniendo solo en memoria:', err);
+    /*
+     * Si llega aquí puede ser:
+     *  - n8n no está corriendo en localhost:5678
+     *  - El flujo de n8n no está activo en modo Test (botón "Test workflow")
+     *  - Bloqueado por firewall o red
+     */
+    if(err instanceof TypeError && err.message.includes('fetch')){
+      msgEl.textContent = 'Error de conexión: asegúrate de que n8n esté activo y el flujo en modo Test.';
+    } else {
+      msgEl.textContent = 'Error de conexión: intenta de nuevo.';
+    }
+    msgEl.style.color = '#e07a7a';
+    console.error(`[Webhook ${origen}]`, err.message);
+
+  } finally {
+    btn.disabled = false;
+    btn.querySelector('span').textContent = labelOrig;
   }
-
-  console.log('[CROPPER] Recortes generados:', Object.keys(map).length, 'productos');
-  console.log('[CROPPER] Slugs:', Object.keys(map).join(', '));
-
-  /* Re-render todo */
-  renderHero();
-  renderBestGrid();
-  renderNewGrid();
-  renderTiles();
-  applyFilters();
-  bindBottleImages();
-  renderEditor();
-
-  /* Verificar visualmente que se aplicó */
-  const sampleHost = document.querySelector('.bottle-host[data-slug="sauvage"]');
-  const sampleImg = sampleHost && sampleHost.querySelector('img.prod-img');
-  console.log('[CROPPER] Img sauvage src:', sampleImg && sampleImg.src.substring(0, 60));
-
-  compositeStatus.textContent = savedToLS
-    ? `✓ 20 fotos aplicadas a la web (guardadas en navegador)`
-    : `✓ 20 fotos aplicadas (memoria solo, no caben en localStorage)`;
-  compositeStatus.className = 'ie-cstatus ok';
-  compositeDownload.hidden = false;
 }
 
-/* Descarga las 20 imágenes recortadas como archivos individuales */
-compositeDownload.addEventListener('click', () => {
-  if(!lastCrops) return;
-  const slugs = Object.keys(lastCrops);
-  slugs.forEach((slug, i) => {
-    setTimeout(() => {
-      const a = document.createElement('a');
-      a.href = lastCrops[slug];
-      a.download = slug + '.jpg';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }, i * 200);  // 200ms entre descargas
+/* — Newsletter — */
+document.getElementById('formNewsletter').addEventListener('submit', e =>
+  enviarFormulario(
+    e,
+    WH_SUSCRIBIR,
+    'newsletterEmail',
+    'newsletter',
+    document.getElementById('newsletterMsg'),
+    document.getElementById('btnSuscribir'),
+    '¡Gracias! Pronto sabrás de nosotros.'
+  )
+);
+
+/* — Ofertas — */
+document.getElementById('formOfertas').addEventListener('submit', e =>
+  enviarFormulario(
+    e,
+    WH_OFERTAS,
+    'ofertasEmail',
+    'ofertas',
+    document.getElementById('ofertasMsg'),
+    document.getElementById('btnOfertas'),
+    '¡Listo! Te enviaremos las mejores ofertas.'
+  )
+);
+
+/* ============================================================
+   NEWSLETTER MODAL
+   ============================================================ */
+(function(){
+  const nlModal  = document.getElementById('newsletterModal');
+  const openBtn  = document.getElementById('openNewsletterModal');
+  const closeBtn = document.getElementById('closeNewsletterModal');
+  if(!nlModal) return;
+
+  function openNl(){
+    nlModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNl(){
+    nlModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if(openBtn)  openBtn.addEventListener('click', openNl);
+  if(closeBtn) closeBtn.addEventListener('click', closeNl);
+  nlModal.addEventListener('click', e => { if(e.target === nlModal) closeNl(); });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && nlModal.classList.contains('open')) closeNl();
   });
-  compositeStatus.textContent = 'Descargando 20 archivos…';
-  compositeStatus.className = 'ie-cstatus';
-});
+
+  window.openNewsletterModal = openNl;
+})();
+
+/* ============================================================
+   MODAL CONFIRMACIÓN PEDIDO
+   ============================================================ */
+(function(){
+  const overlay  = document.getElementById('modal-confirmacion');
+  const elMarca  = document.getElementById('mconfMarca');
+  const elNombre = document.getElementById('mconfNombre');
+  const elPrecio = document.getElementById('mconfPrecio');
+  const btnOk    = document.getElementById('mconfAceptar');
+  const btnNo    = document.getElementById('mconfCancelar');
+
+  let _pendingUrl = null;
+
+  function abrirModal(producto){
+    /* Rellena los datos del producto */
+    elMarca.textContent  = producto.marca  || '';
+    elNombre.textContent = producto.nombre || '';
+    elPrecio.textContent = producto.precioOld
+      ? `${producto.precio} (antes ${producto.precioOld})`
+      : producto.precio;
+
+    /* Prepara la URL de WhatsApp para cuando acepte */
+    _pendingUrl = waLink(producto);
+
+    /* Muestra el modal */
+    overlay.classList.add('visible');
+    btnOk.focus();
+  }
+
+  function cerrarModal(){
+    overlay.classList.remove('visible');
+    _pendingUrl = null;
+  }
+
+  /* Aceptar → abrir WhatsApp */
+  btnOk.addEventListener('click', e => {
+    e.stopPropagation();
+    const url = _pendingUrl;
+    cerrarModal();           /* limpia _pendingUrl ANTES de abrir */
+    if(!url) return;
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if(!win) location.href = url;
+  });
+
+  /* Cancelar */
+  btnNo.addEventListener('click', e => { e.stopPropagation(); cerrarModal(); });
+
+  /* Clic en el backdrop (fuera del cuadro) cierra el modal */
+  overlay.addEventListener('click', e => {
+    if(e.target === overlay) cerrarModal();
+  });
+
+  /* Escape también cierra */
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape' && overlay.classList.contains('visible')) cerrarModal();
+  });
+
+  /* Exponer globalmente para que openModal() pueda llamarla */
+  window.abrirModalPedido = abrirModal;
+})();
+
+/* ============================================================
+   PERSISTENCIA DE ESTADO (sessionStorage)
+   ============================================================ */
+const NAV_STATE_KEY = 'vant_nav_state';
+
+function saveNavState(){
+  const s = {
+    section: shop.classList.contains('open') ? 'shop' : 'landing',
+    shopFilters: shop.classList.contains('open') ? {
+      genero: state.genero, marca: state.marca, tipo: state.tipo,
+      familia: state.familia, oferta: state.oferta,
+      priceMin: state.priceMin, priceMax: state.priceMax,
+      sort: state.sort, query: state.query,
+      _shopOrigin: state._shopOrigin
+    } : null,
+    scrollY: window.scrollY,
+    ts: Date.now()
+  };
+  try { sessionStorage.setItem(NAV_STATE_KEY, JSON.stringify(s)); } catch(_){}
+}
+
+function restoreNavState(){
+  try {
+    const raw = sessionStorage.getItem(NAV_STATE_KEY);
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    if(!s) return;
+    /* Expirar después de 2 horas */
+    if(Date.now() - (s.ts || 0) > 7200000) {
+      sessionStorage.removeItem(NAV_STATE_KEY);
+      return;
+    }
+    if(s.section === 'shop' && s.shopFilters){
+      const f = s.shopFilters;
+      /* Restaurar shop con sus filtros */
+      requestAnimationFrame(() => {
+        openShop(f._shopOrigin || f);
+        if(f.query){
+          state.query = f.query;
+          const ssi = document.getElementById('shopSearchInput');
+          const ssp = document.getElementById('shopSearchPanel');
+          if(ssi) ssi.value = f.query;
+          if(ssp) ssp.value = f.query;
+        }
+        if(f.sort && f.sort !== 'orden'){
+          state.sort = f.sort;
+          const sortEl = document.getElementById('sort');
+          if(sortEl) sortEl.value = f.sort;
+        }
+        applyFilters();
+      });
+    } else if(s.section === 'landing' && s.scrollY > 120){
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: s.scrollY, behavior: 'instant' });
+      });
+    }
+  } catch(_){}
+}
+
+/* Guardar posición de scroll en landing (debounced 600ms) */
+let _scrollSaveTimer;
+window.addEventListener('scroll', () => {
+  if(shop.classList.contains('open')) return;
+  clearTimeout(_scrollSaveTimer);
+  _scrollSaveTimer = setTimeout(saveNavState, 600);
+}, { passive: true });
+
+restoreNavState();
 
 /* ============================================================
    REVEALS
