@@ -2879,6 +2879,9 @@ function loadOverrides(){ return loadURLMapSafe(IMG_KEY); }
 function saveOverrides(o){ localStorage.setItem(IMG_KEY, JSON.stringify(o)); }
 const overrides = loadOverrides();
 
+/* URLs de Airtable (en memoria, expiran — no se persisten en localStorage) */
+const airtableImages = {};
+
 /* Cache de URLs que ya sabemos que funcionan — evita parpadeo del SVG */
 const KNOWN_URLS_KEY = 'vant_known_urls';
 let lastWorkingUrl = loadURLMapSafe(KNOWN_URLS_KEY);
@@ -2897,7 +2900,10 @@ function imgCandidates(p){
   /* 1) Override del editor o del cropper (data URLs o URLs personalizadas) */
   if(overrides[p.slug]) urls.push(overrides[p.slug]);
 
-  /* 2) Archivos declarados explícitamente en manifest.js (con nombres "raros") */
+  /* 2) Imagen sincronizada desde Airtable (URL temporal, en memoria) */
+  if(airtableImages[p.slug]) urls.push(airtableImages[p.slug]);
+
+  /* 3) Archivos declarados explícitamente en manifest.js (con nombres "raros") */
   const manifest = window.PRODUCT_IMAGES && window.PRODUCT_IMAGES[p.slug];
   if(Array.isArray(manifest)){
     for(const fname of manifest){
@@ -4066,6 +4072,44 @@ const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
 
 const WH_SUSCRIBIR = `${API_BASE_URL}/suscribir-vant`;
 const WH_OFERTAS   = `${API_BASE_URL}/suscribir-vant`;  // mismo endpoint, diferenciado por campo origen='ofertas'
+const WH_GET_DATOS = `${API_BASE_URL}/obtener-ofertas`;
+
+/* Mapa nombre-normalizado → slug para matching con Airtable */
+const _nombreToSlug = {};
+for(const p of products) _nombreToSlug[p.nombre.toLowerCase().trim()] = p.slug;
+
+async function syncAirtableImages(){
+  try {
+    const res = await fetch(WH_GET_DATOS);
+    if(!res.ok) return;
+    const data = await res.json();
+    const newSlugs = [];
+    for(const ap of Object.values(data)){
+      const fotos = Array.isArray(ap.Foto) ? ap.Foto : [];
+      if(!fotos.length) continue;
+      const slug = _nombreToSlug[String(ap.Nombre || '').toLowerCase().trim()];
+      if(!slug) continue;
+      const foto = fotos[0];
+      const url = (foto.thumbnails && foto.thumbnails.large && foto.thumbnails.large.url)
+                  || foto.url;
+      if(!url) continue;
+      airtableImages[slug] = url;
+      newSlugs.push(slug);
+    }
+    if(!newSlugs.length) return;
+    /* Limpiar src y cache de productos que recibieron URL de Airtable
+       para que bindBottleImages re-pruebe con la URL de Airtable primero */
+    newSlugs.forEach(slug => {
+      delete lastWorkingUrl[slug];
+      const host = document.querySelector(`.bottle-host[data-slug="${CSS.escape(slug)}"]`);
+      if(!host) return;
+      const img = host.querySelector('img.prod-img');
+      if(img){ img.removeAttribute('src'); img.style.opacity = '0'; }
+      host.classList.remove('has-image');
+    });
+    bindBottleImages();
+  } catch(_){}
+}
 
 /**
  * enviarFormulario(event, url)
@@ -4336,6 +4380,9 @@ const io = new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
 },{ threshold:.08, rootMargin:'0px 0px -40px 0px' });
 document.querySelectorAll('.reveal, .stagger').forEach(el=>io.observe(el));
+
+/* Sincronizar imágenes desde Airtable al arrancar */
+syncAirtableImages();
 </script>
 
 </body>
