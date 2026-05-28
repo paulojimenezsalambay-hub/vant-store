@@ -65,7 +65,11 @@
 }
 </script>
 
-<!-- Content Security Policy: defensa en profundidad -->
+<!-- Content Security Policy: defensa en profundidad
+     PRODUCCIÓN: reemplazar http://localhost:5678 por la URL real de n8n en la nube,
+     p.ej. https://n8n.tudominio.com
+     En Cloudflare Pages añadir la cabecera CSP en _headers en lugar de esta meta tag
+     para mayor fiabilidad. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' 'unsafe-inline';
@@ -1888,9 +1892,9 @@ body.shop-locked { overflow: hidden; }
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-inner">
-    <span class="side"><a id="topPhone" target="_blank" rel="noopener">📞 WhatsApp asesor</a></span>
+    <span class="side"><a id="topPhone" target="_blank" rel="noopener noreferrer">📞 WhatsApp asesor</a></span>
     <span class="marquee-mini">◆ Envío gratis a partir de 49 $ ◆ Originales 100 % ◆ Devolución 30 días ◆</span>
-    <span class="side"><a id="topContact" target="_blank" rel="noopener">Atención al cliente</a></span>
+    <span class="side"><a id="topContact" target="_blank" rel="noopener noreferrer">Atención al cliente</a></span>
   </div>
 </div>
 
@@ -2187,7 +2191,7 @@ body.shop-locked { overflow: hidden; }
         Perfumería de autor. Fragancias que dejan huella.
       </p>
       <p style="color: var(--bone-soft); font-size: 12px; margin-top: 18px; line-height: 1.8;">
-        📞 <a id="footPhone" target="_blank" rel="noopener" style="color:var(--bone-soft)">Hablar por WhatsApp</a><br>
+        📞 <a id="footPhone" target="_blank" rel="noopener noreferrer" style="color:var(--bone-soft)">Hablar por WhatsApp</a><br>
         ✉ <a id="footEmail" style="color:var(--bone-soft)">Escríbenos</a>
       </p>
     </div>
@@ -2221,7 +2225,7 @@ body.shop-locked { overflow: hidden; }
     <div>
       <h4>Síguenos</h4>
       <ul>
-        <li><a href="https://instagram.com/vant.store" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://instagram.com/vant.store" target="_blank" rel="noopener noreferrer">Instagram</a></li>
         <li><a>TikTok</a></li>
         <li><a>Facebook</a></li>
         <li><a>YouTube</a></li>
@@ -2804,7 +2808,7 @@ function bottleSVG(p){
    ⚠ CAMBIA AQUÍ tu número real cuando lances el proyecto.
    Formato internacional, solo dígitos (sin +, sin espacios).
    ============================================================ */
-const WHATSAPP_NUMBER = '34600123456';   // ← número placeholder (ES)
+const WHATSAPP_NUMBER = '593999999999';  // ← Ecuador (+593) — actualizar con número real
 const CONTACT_EMAIL   = 'hola@vantstore.com';
 
 /* ============================================================
@@ -3818,16 +3822,16 @@ function openModal(slug){
     <button class="modal-close" aria-label="Cerrar">×</button>
     <div class="modal-img">${bottleHTML(p)}</div>
     <div class="modal-info">
-      <div class="brand-tag">${p.marca}</div>
-      <h3>${p.nombre}</h3>
-      <div class="meta">${p.tipo} · ${p.ml} · ${p.genero} · Familia ${p.familia}</div>
+      <div class="brand-tag">${escapeHTML(p.marca)}</div>
+      <h3>${escapeHTML(p.nombre)}</h3>
+      <div class="meta">${escapeHTML(p.tipo)} · ${escapeHTML(p.ml)} · ${escapeHTML(p.genero)} · Familia ${escapeHTML(p.familia)}</div>
       <div class="section-title">Notas olfativas</div>
-      <div class="notas-list">${p.notas.join(' · ')}</div>
-      <p class="copy">${p.copy}</p>
+      <div class="notas-list">${p.notas.map(escapeHTML).join(' · ')}</div>
+      <p class="copy">${escapeHTML(p.copy)}</p>
       <div class="price-row">
         <div class="price-wrap">
-          ${p.precioOld ? `<span class="price-old"><span class="price-sign">$</span>${p.precioOld}</span>` : ''}
-          <span class="price${p.precioOld?' sale':''}"><span class="price-sign">$</span>${p.precio}</span>
+          ${p.precioOld ? `<span class="price-old"><span class="price-sign">$</span>${escapeHTML(String(p.precioOld))}</span>` : ''}
+          <span class="price${p.precioOld?' sale':''}"><span class="price-sign">$</span>${escapeHTML(String(p.precio))}</span>
         </div>
         <div class="modal-actions">
           <button class="btn btn-ghost" data-modal-cart="${p.slug}"><span>Añadir al carrito</span></button>
@@ -3845,9 +3849,9 @@ function openModal(slug){
             ${bottleHTML(r)}
           </div>
           <div class="rel-card-body">
-            <div class="rel-card-brand">${r.marca}</div>
-            <div class="rel-card-name">${r.nombre}</div>
-            <div class="rel-card-price${r.precioOld?' sale':''}"><span class="ps">$</span>${r.precio}</div>
+            <div class="rel-card-brand">${escapeHTML(r.marca)}</div>
+            <div class="rel-card-name">${escapeHTML(r.nombre)}</div>
+            <div class="rel-card-price${r.precioOld?' sale':''}"><span class="ps">$</span>${escapeHTML(String(r.precio))}</div>
           </div>
         </div>`).join('')}
       </div>
@@ -3947,9 +3951,10 @@ document.addEventListener('keydown', e => {
 });
 
 function highlight(text, q){
-  if(!q) return text;
-  const re = new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
-  return text.replace(re, '<mark>$1</mark>');
+  const safe = escapeHTML(text);
+  if(!q) return safe;
+  const re = new RegExp('('+escapeHTML(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return safe.replace(re, '<mark>$1</mark>');
 }
 
 let searchTimer;
@@ -3970,7 +3975,7 @@ searchInput.addEventListener('input', e => {
       p.notas.some(n => n.toLowerCase().includes(ql))
     ).slice(0, 8);
     if(list.length === 0){
-      searchResults.innerHTML = `<div class="search-empty">Sin resultados para "${q}"</div>`;
+      searchResults.innerHTML = `<div class="search-empty">Sin resultados para &ldquo;${escapeHTML(q)}&rdquo;</div>`;
       return;
     }
     searchResults.innerHTML = list.map(p => `
@@ -4049,6 +4054,10 @@ function closeImgEditor(){}
 /* ============================================================
    WEBHOOKS · Newsletter y Ofertas → n8n test mode
    ============================================================ */
+/* PRODUCCIÓN: cambiar localhost:5678 por tu URL de n8n en la nube
+   y /webhook-test/ por /webhook/ (requiere workflow activo, no en test mode).
+   Ejemplo: 'https://n8n.tudominio.com/webhook/suscribir-vant'
+   También actualizar connect-src en el CSP del <head>. */
 const WH_SUSCRIBIR = 'http://localhost:5678/webhook-test/suscribir-vant';
 const WH_OFERTAS   = 'http://localhost:5678/webhook-test/obtener-ofertas';
 
