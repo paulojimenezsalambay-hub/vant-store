@@ -4074,9 +4074,15 @@ const WH_SUSCRIBIR = `${API_BASE_URL}/suscribir-vant`;
 const WH_OFERTAS   = `${API_BASE_URL}/suscribir-vant`;  // mismo endpoint, diferenciado por campo origen='ofertas'
 const WH_GET_DATOS = `${API_BASE_URL}/obtener-ofertas`;
 
+/* Normaliza un nombre quitando tildes/diacríticos para comparar */
+function _normName(s){
+  return String(s||'').toLowerCase().trim()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'');
+}
+
 /* Mapa nombre-normalizado → slug para matching con Airtable */
 const _nombreToSlug = {};
-for(const p of products) _nombreToSlug[p.nombre.toLowerCase().trim()] = p.slug;
+for(const p of products) _nombreToSlug[_normName(p.nombre)] = p.slug;
 
 async function syncAirtableImages(){
   try {
@@ -4087,7 +4093,7 @@ async function syncAirtableImages(){
     for(const ap of Object.values(data)){
       const fotos = Array.isArray(ap.Foto) ? ap.Foto : [];
       if(!fotos.length) continue;
-      const slug = _nombreToSlug[String(ap.Nombre || '').toLowerCase().trim()];
+      const slug = _nombreToSlug[_normName(ap.Nombre)];
       if(!slug) continue;
       const foto = fotos[0];
       const url = (foto.thumbnails && foto.thumbnails.large && foto.thumbnails.large.url)
