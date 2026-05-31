@@ -478,6 +478,7 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 .hero p.lead { max-width: 460px; color: var(--bone-soft); line-height: 1.85; margin: 0 0 38px; font-size: 14px; }
 @media (max-width: 900px) { .hero p.lead { margin: 0 auto 38px; } }
 .hero-ctas { display: flex; gap: 16px; flex-wrap: wrap; }
+.hero-ctas--single { justify-content: flex-start; }
 @media (max-width: 900px) { .hero-ctas { justify-content: center; } }
 .hero-trust {
   display: flex; gap: 28px; align-items: center;
@@ -2189,6 +2190,7 @@ img { max-width: 100%; height: auto; }
           </div>
         </div>
       </li>
+      <li><a href="#" onclick="event.preventDefault();activarFiltroBestsellers();">Más vendidos</a></li>
       <li><a data-jump="coleccion" data-filter='{"oferta":true}'>Ofertas</a></li>
       <li>
         <a data-jump="coleccion">Marcas <span class="caret">▾</span></a>
@@ -2286,9 +2288,8 @@ img { max-width: 100%; height: auto; }
         Fragancias exclusivas que definen tu carácter, elevan tu presencia y dejan huella.
         Solo lo extraordinario merece quedarse.
       </p>
-      <div class="hero-ctas">
+      <div class="hero-ctas hero-ctas--single">
         <a class="btn btn-gold" data-jump="coleccion"><span>Ver colección</span></a>
-        <a class="btn btn-ghost btn-bestsellers" href="#" onclick="event.preventDefault();activarFiltroBestsellers();"><span>Más vendidos</span></a>
       </div>
       <div class="hero-trust">
         <span>★ 4,9 / 5</span>
