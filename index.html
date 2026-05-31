@@ -443,14 +443,7 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 }
 .hero::before {
   content: ''; position: absolute; inset: 0;
-  background:
-    /* spotlight cálido centrado en el frasco (columna derecha) */
-    radial-gradient(ellipse 52% 68% at 73% 44%, rgba(200,169,107,0.16) 0%, transparent 65%),
-    radial-gradient(ellipse 28% 38% at 73% 42%, rgba(200,169,107,0.10) 0%, transparent 60%),
-    /* calor ambiental tenue en la izquierda */
-    radial-gradient(ellipse 40% 50% at 16% 70%, rgba(200,169,107,0.04) 0%, transparent 55%),
-    /* base casi negro */
-    linear-gradient(168deg, #0a0810 0%, #0e0b12 50%, #09070c 100%);
+  background: #000;
   z-index: 0;
 }
 /* grain de película — textura luxury */
@@ -503,17 +496,28 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100%;
+  align-self: stretch;
+  overflow: visible;
 }
 .hero-static-img {
-  width: 140%;
-  max-width: 140%;
-  height: auto;
+  height: 92vh;
+  width: auto;
+  max-width: none;
   display: block;
-  margin: 0 auto;
+  object-fit: contain;
   position: relative;
   z-index: 1;
-  object-fit: contain;
+  margin: 0 auto;
+  -webkit-mask-image:
+    linear-gradient(to right,  transparent 0%,  black 12%, black 82%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 18%, black 85%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right,  transparent 0%,  black 12%, black 82%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, black 18%, black 85%, transparent 100%);
+  mask-composite: intersect;
+  filter: contrast(1.12) saturate(1.2) brightness(1.04);
+  image-rendering: high-quality;
 }
 .hero-product::before {
   content: ''; position: absolute;
@@ -2016,9 +2020,9 @@ img { max-width: 100%; height: auto; }
     overflow: hidden;
   }
   .hero-static-img {
+    height: 42vh !important;
     width: auto !important;
     max-width: 100% !important;
-    max-height: 42vh;
     object-fit: contain;
   }
 
@@ -2301,7 +2305,7 @@ img { max-width: 100%; height: auto; }
     </div>
     <div class="hero-product hero-product--static reveal">
       <img
-        src="assets/ChatGPT Image 31 may 2026, 06_45_01 p.m..png"
+        src="assets/cambio estetica foto 2 .png"
         alt="Fragancia premium VANT Store"
         class="hero-static-img"
       />
@@ -2426,10 +2430,8 @@ img { max-width: 100%; height: auto; }
     <div>
       <h4>Ayuda</h4>
       <ul>
-        <li><a>Envíos y devoluciones</a></li>
-        <li><a>Autenticidad</a></li>
+        <li><a>Envíos</a></li>
         <li><a>Preguntas frecuentes</a></li>
-        <li><a>Pedidos</a></li>
       </ul>
     </div>
     <div>
@@ -2438,7 +2440,6 @@ img { max-width: 100%; height: auto; }
         <li><a href="https://instagram.com/vant.store" target="_blank" rel="noopener noreferrer">Instagram</a></li>
         <li><a>TikTok</a></li>
         <li><a>Facebook</a></li>
-        <li><a>YouTube</a></li>
       </ul>
     </div>
   </div>
