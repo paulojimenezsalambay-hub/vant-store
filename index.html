@@ -405,6 +405,32 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
 }
 .btn-sm { padding: 11px 22px; font-size: 10px; }
 
+/* Botón Más vendidos — micro-interacción alta gama */
+.btn-bestsellers {
+  position: relative;
+  overflow: hidden;
+  transition: border-color .4s var(--ease), color .4s var(--ease),
+              letter-spacing .4s var(--ease), box-shadow .4s var(--ease),
+              opacity .3s var(--ease), transform .35s var(--ease);
+}
+.btn-bestsellers::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,169,107,.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .4s var(--ease);
+}
+.btn-bestsellers:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  letter-spacing: 0.52em;
+  box-shadow: 0 0 32px -8px rgba(200,169,107,.22);
+  transform: translateY(-2px);
+}
+.btn-bestsellers:hover::after { opacity: 1; }
+.btn-bestsellers:active { transform: translateY(0); opacity: .85; }
+
 /* ============================================================
    HERO
    ============================================================ */
@@ -470,6 +496,23 @@ button { font: inherit; cursor: pointer; background: none; border: 0; color: inh
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+.hero-product--static {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.hero-static-img {
+  width: 140%;
+  max-width: 140%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  object-fit: contain;
 }
 .hero-product::before {
   content: ''; position: absolute;
@@ -1878,6 +1921,111 @@ body.shop-locked { overflow: hidden; }
   .mconf-box { padding: 32px 22px 26px; }
   .mconf-actions { flex-direction: column; }
 }
+
+/* ============================================================
+   RESPONSIVE MÓVIL — bloque maestro
+   ============================================================ */
+
+/* Imágenes globales */
+img { max-width: 100%; height: auto; }
+
+@media (max-width: 768px) {
+
+  /* --- Wrap / secciones: padding lateral reducido --- */
+  .wrap                { padding-left: 18px !important; padding-right: 18px !important; }
+  .tiles-grid          { padding-left: 18px !important; padding-right: 18px !important; }
+  .hero-grid           { padding-left: 18px !important; padding-right: 18px !important; }
+
+  /* --- Hero --- */
+  .hero                { min-height: auto; padding: 32px 0 24px; }
+  .hero h1             { font-size: clamp(36px, 10vw, 54px); margin: 16px 0 20px; }
+  .hero p.lead         { font-size: 14px; margin-bottom: 28px; }
+  .hero-ctas              { flex-direction: column; align-items: center; gap: 0; }
+  .hero-ctas .btn         { width: 100%; max-width: 320px; justify-content: center; padding: 16px 24px; }
+  .hero-ctas .btn + .btn  { margin-top: 10px; }
+  .hero-trust          { margin-top: 28px; font-size: 9px; gap: 10px; }
+
+  /* Imagen estática del hero: compacta en móvil */
+  .hero-product--static {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 8px;
+    margin-bottom: 0;
+    padding: 0 10px;
+    max-height: 42vh;
+    overflow: hidden;
+  }
+  .hero-static-img {
+    width: auto !important;
+    max-width: 100% !important;
+    max-height: 42vh;
+    object-fit: contain;
+  }
+
+  /* --- Headings generales --- */
+  h2 { font-size: clamp(26px, 7vw, 38px); }
+  .section-head h2 { font-size: clamp(24px, 6vw, 34px); }
+
+  /* --- Tiles de categoría (overflow + texto cortado) --- */
+  .tiles               { padding: 48px 0; }
+  .tiles-grid          { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+  .tile                { padding: 18px; aspect-ratio: 3/4; }
+  .tile h3             { font-size: 20px; margin: 4px 0 6px; }
+  .tile .tag           { font-size: 9px; letter-spacing: 0.28em; }
+  .tile p              { font-size: 11px; }
+  .tile-orn            { font-size: 20px; top: 10px; right: 12px; }
+  .tile .arrow         { bottom: 18px; right: 18px; font-size: 14px; }
+
+  /* --- Cards de producto --- */
+  .grid-3, .grid-4     { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+  .ofertas-grid        { grid-template-columns: repeat(2, 1fr) !important; gap: 12px; }
+  .card .body          { padding: 14px 14px 18px; }
+  .card h3             { font-size: 15px; min-height: auto; }
+  .card .meta          { font-size: 10px; }
+  .card .price         { font-size: 18px; }
+  /* Botón "Pedir" — touch target grande, fácil de pulsar con el pulgar */
+  .card .buy {
+    padding: 12px 16px;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    min-height: 44px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* --- Familias de fragancia --- */
+  .fams-grid           { grid-template-columns: repeat(2, 1fr) !important; gap: 10px; }
+  .fam                 { padding: 24px 14px; }
+
+  /* --- Ofertas section --- */
+  .ofertas-section     { padding: 48px 0; }
+  .section-head        { flex-direction: column; gap: 12px; align-items: flex-start; }
+
+  /* --- Footer --- */
+  .footer-grid         { grid-template-columns: 1fr !important; gap: 32px; }
+  .foot-base           { flex-direction: column; text-align: center; gap: 12px; }
+
+  /* --- Carrito drawer --- */
+  .cart                { width: 100vw !important; }
+  .cart-checkout       { padding: 18px 16px; font-size: 10px; min-height: 52px; }
+
+  /* --- Botones globales --- */
+  .btn                 { padding: 14px 28px; font-size: 10px; }
+  .btn-sm              { padding: 10px 18px; font-size: 9px; }
+
+  /* --- Modal de confirmación --- */
+  .mconf-box           { margin: 16px; }
+  #mconfAceptar, #mconfCancelar { min-height: 48px; padding: 14px 20px; }
+}
+
+/* Pantallas muy pequeñas: teléfonos compactos < 360px */
+@media (max-width: 360px) {
+  .tiles-grid          { grid-template-columns: 1fr !important; }
+  .grid-3, .grid-4,
+  .ofertas-grid        { grid-template-columns: 1fr !important; }
+  .tile h3             { font-size: 22px; }
+  .tile                { padding: 14px; }
+}
 </style>
 </head>
 <body>
@@ -2082,7 +2230,7 @@ body.shop-locked { overflow: hidden; }
       </p>
       <div class="hero-ctas">
         <a class="btn btn-gold" data-jump="coleccion"><span>Ver colección</span></a>
-        <a class="btn btn-ghost" data-jump="coleccion"><span>Toda la colección</span></a>
+        <a class="btn btn-ghost btn-bestsellers" data-jump="coleccion" data-filter='{"bestseller":true}'><span>Más vendidos</span></a>
       </div>
       <div class="hero-trust">
         <span>★ 4,9 / 5</span>
@@ -2092,9 +2240,12 @@ body.shop-locked { overflow: hidden; }
         <span>Envío 24–48 h</span>
       </div>
     </div>
-    <div class="hero-product reveal">
-      <div class="hero-product-stage" id="heroStage"></div>
-      <div class="hero-dots" id="heroDots"></div>
+    <div class="hero-product hero-product--static reveal">
+      <img
+        src="assets/ChatGPT Image 31 may 2026, 06_45_01 p.m..png"
+        alt="Fragancia premium VANT Store"
+        class="hero-static-img"
+      />
     </div>
   </div>
 </header>
@@ -2423,7 +2574,7 @@ body.shop-locked { overflow: hidden; }
       <p class="mconf-marca" id="mconfMarca"></p>
       <p class="mconf-nombre" id="mconfNombre"></p>
       <div class="mconf-precio">
-        <span class="ps">$</span><span id="mconfPrecio"></span>
+        <span class="ps" id="mconfPs">$</span><span id="mconfPrecio"></span>
       </div>
       <p class="mconf-sub">Se abrirá WhatsApp para finalizar la compra.</p>
     </div>
@@ -3195,15 +3346,13 @@ function buildCartMessage(){
 }
 
 document.getElementById('cartCheckout').addEventListener('click', () => {
-  if(cartCount() === 0) return;
-  const msg = buildCartMessage();
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  /* window.open garantiza apertura (más fiable que <a target=_blank>) */
-  const win = window.open(url, '_blank', 'noopener,noreferrer');
-  if(!win){
-    /* Si el navegador bloqueó la ventana, navegamos en la misma pestaña */
-    location.href = url;
-  }
+  const count = cartCount();
+  if(count === 0) return;
+  const total = cartTotal();
+  const msg   = buildCartMessage();
+  const url   = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+  /* Abre el modal reutilizando el componente existente en modo carrito */
+  window.abrirModalPedido({ _cartUrl: url, _cartCount: count, _cartTotal: total });
 });
 
 updateCartUI();
@@ -3211,31 +3360,7 @@ updateCartUI();
 /* ============================================================
    HERO rotativo (top 4 bestsellers)
    ============================================================ */
-const heroPool = products.filter(p=>p.bestseller).sort((a,b)=>a.orden-b.orden).slice(0,4);
-const heroStage = document.getElementById('heroStage');
-const heroDots  = document.getElementById('heroDots');
-let heroIdx = 0, heroTimer;
-
-function renderHero(){
-  heroStage.innerHTML = heroPool.map((p,i)=>`
-    <div class="hero-slide ${i===heroIdx?'active':''}" data-i="${i}">
-      ${bottleHTML(p, true)}
-      <div class="hero-meta">
-        <div class="brand-tag">${p.marca}</div>
-        <div class="name">${p.nombre}</div>
-        <div class="price">${p.precio} $</div>
-      </div>
-    </div>`).join('');
-  heroDots.innerHTML = heroPool.map((_,i)=>
-    `<button data-i="${i}" class="${i===heroIdx?'active':''}" aria-label="Slide ${i+1}"></button>`).join('');
-  heroDots.querySelectorAll('button').forEach(b=>{
-    b.addEventListener('click',()=>{ heroIdx = +b.dataset.i; renderHero(); resetT(); });
-  });
-}
-function nextHero(){ heroIdx = (heroIdx+1)%heroPool.length; renderHero(); }
-function resetT(){ clearInterval(heroTimer); heroTimer = setInterval(nextHero, 5500); }
-renderHero();
-resetT();
+/* Hero estático — imagen fija, sin carrusel dinámico */
 
 /* ============================================================
    PRODUCT CARD render
@@ -4046,13 +4171,8 @@ applyFilters = function(){
   bindBottleImages();
 };
 
-/* Hook renderHero para re-bind del hero al rotar */
-const _origRenderHero = renderHero;
-renderHero = function(){
-  _origRenderHero();
-  bindBottleImages();
-};
-renderHero();
+/* Hero estático: bind de imágenes de botella al arrancar */
+bindBottleImages();
 
 function closeImgEditor(){}
 
@@ -4262,18 +4382,25 @@ document.getElementById('formOfertas').addEventListener('submit', e =>
 
   let _pendingUrl = null;
 
-  function abrirModal(producto){
-    /* Rellena los datos del producto */
-    elMarca.textContent  = producto.marca  || '';
-    elNombre.textContent = producto.nombre || '';
-    elPrecio.textContent = producto.precioOld
-      ? `${producto.precio} (antes ${producto.precioOld})`
-      : producto.precio;
+  function abrirModal(data){
+    /* Modo carrito: data tiene _cartUrl, _cartCount, _cartTotal */
+    if(data._cartUrl){
+      elMarca.textContent  = `${data._cartCount} ${data._cartCount === 1 ? 'artículo' : 'artículos'}`;
+      elNombre.textContent = '¿Confirmas tu pedido?';
+      document.getElementById('mconfPs').textContent = '';
+      elPrecio.textContent = `Subtotal: $${data._cartTotal}`;
+      _pendingUrl = data._cartUrl;
+    } else {
+      /* Modo producto individual */
+      elMarca.textContent  = data.marca  || '';
+      elNombre.textContent = data.nombre || '';
+      document.getElementById('mconfPs').textContent = '$';
+      elPrecio.textContent = data.precioOld
+        ? `${data.precio} (antes ${data.precioOld})`
+        : data.precio;
+      _pendingUrl = waLink(data);
+    }
 
-    /* Prepara la URL de WhatsApp para cuando acepte */
-    _pendingUrl = waLink(producto);
-
-    /* Muestra el modal */
     overlay.classList.add('visible');
     btnOk.focus();
   }
@@ -4283,14 +4410,19 @@ document.getElementById('formOfertas').addEventListener('submit', e =>
     _pendingUrl = null;
   }
 
-  /* Aceptar → abrir WhatsApp */
+  /* Aceptar → abrir WhatsApp (móvil: misma pestaña · escritorio: nueva pestaña) */
   btnOk.addEventListener('click', e => {
     e.stopPropagation();
     const url = _pendingUrl;
-    cerrarModal();           /* limpia _pendingUrl ANTES de abrir */
+    cerrarModal();
     if(!url) return;
-    const win = window.open(url, '_blank', 'noopener,noreferrer');
-    if(!win) location.href = url;
+    const isMobile = window.innerWidth < 768 ||
+      /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+    if(isMobile){
+      window.location.href = url;
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   });
 
   /* Cancelar */
