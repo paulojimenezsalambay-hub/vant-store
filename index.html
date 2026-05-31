@@ -1943,6 +1943,38 @@ body.shop-locked { overflow: hidden; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Modo Bestsellers activo — borde dorado sutil en el grid */
+#catalogGrid.is-filtered {
+  border-top: 1px solid rgba(200,169,107,.18);
+  padding-top: 8px;
+}
+#catalogGrid.is-filtered .card[data-es-top="true"] {
+  border-color: rgba(200,169,107,.32);
+  box-shadow: 0 0 18px -6px rgba(200,169,107,.12);
+}
+
+/* Estado vacío del catálogo */
+.shop-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 64px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.shop-empty-icon {
+  font-size: 28px;
+  color: var(--gold);
+  opacity: .5;
+}
+.shop-empty-msg {
+  color: var(--bone-soft);
+  font-size: 14px;
+  max-width: 320px;
+  line-height: 1.7;
+}
+
 /* ============================================================
    RESPONSIVE MÓVIL — bloque maestro
    ============================================================ */
@@ -3729,6 +3761,30 @@ function applyFilters(){
 }
 function renderPage(){
   const total = currentList.length;
+  const isBestseller = !!state.bestseller;
+
+  /* Clase visual que indica modo 'Más vendidos' */
+  catGrid.classList.toggle('is-filtered', isBestseller);
+
+  /* Estado vacío */
+  if(total === 0){
+    catGrid.innerHTML = `
+      <div class="shop-empty">
+        <p class="shop-empty-icon">✦</p>
+        <p class="shop-empty-msg">${
+          isBestseller
+            ? 'No hay productos top en este momento, revisa nuestra colección completa.'
+            : 'No se encontraron productos con estos filtros.'
+        }</p>
+        <button class="btn btn-ghost btn-sm" onclick="restaurarStockCompleto()">
+          <span>Ver toda la colección</span>
+        </button>
+      </div>`;
+    catCount.textContent = '0 productos';
+    shopPagination.innerHTML = '';
+    return;
+  }
+
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
   shopPage = Math.min(Math.max(shopPage, 1), totalPages);
   const start = (shopPage - 1) * ITEMS_PER_PAGE;
@@ -3953,16 +4009,95 @@ bindJumps();
 function activarFiltroBestsellers(){
   /* 1. Abre el shop con filtro bestseller */
   openShop({ bestseller: true });
-  /* 2. Scroll suave al ancla (con offset del nav) */
-  const ancla = document.getElementById('seccion-mas-vendidos');
-  if(ancla){
-    setTimeout(()=>{
-      ancla.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 80);
-  }
+
+  /* 2. Scroll al encabezado del shop para que el usuario no se pierda */
+  setTimeout(()=>{
+    const shopBar = document.querySelector('.shop-bar') || document.getElementById('shop');
+    if(shopBar) shopBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    /* Fallback: scroll interno del overlay al top */
+    const shopEl = document.getElementById('shop');
+    if(shopEl) shopEl.scrollTop = 0;
+  }, 120);
 }
-/* Exponer globalmente para integraciones externas (n8n webhooks, etc.) */
 window.activarFiltroBestsellers = activarFiltroBestsellers;
+
+/* ============================================================
+   RESTAURAR STOCK COMPLETO
+   ============================================================ */
+function restaurarStockCompleto(){
+  /* Elimina todos los filtros activos y muestra la colección completa */
+  state.query = '';
+  const ssi = document.getElementById('shopSearchInput');
+  const ssp = document.getElementById('shopSearchPanel');
+  if(ssi) ssi.value = '';
+  if(ssp) ssp.value = '';
+  setFilters({
+    genero:'', marca:'', tipo:'', familia:'',
+    priceMin:null, priceMax:null, sort:'orden',
+    slug:'', oferta:false, bestseller:false
+  });
+  document.getElementById('sort').value = 'orden';
+  applyFilters();
+
+  /* Scroll al encabezado del shop */
+  setTimeout(()=>{
+    const shopEl = document.getElementById('shop');
+    if(shopEl) shopEl.scrollTop = 0;
+  }, 80);
+}
+window.restaurarStockCompleto = restaurarStockCompleto;
+
+/* ============================================================
+   RENDERIZAR PRODUCTOS DESDE JSON (puente para n8n / Airtable)
+   ============================================================
+   Uso: renderizarProductos([ { slug, nombre, marca, precio,
+          precioOld, tipo, ml, genero, familia, bestseller,
+          oferta, nuevo, orden, notas, foto } ])
+   Actualiza el array global `products` y refresca el catálogo.
+   ============================================================ */
+function renderizarProductos(datos){
+  if(!Array.isArray(datos) || datos.length === 0){
+    console.warn('[VANT] renderizarProductos: datos vacíos o no es array');
+    return;
+  }
+
+  datos.forEach(item => {
+    const idx = products.findIndex(p => p.slug === item.slug);
+    const normalizado = {
+      slug:        item.slug        || '',
+      nombre:      item.nombre      || item.Nombre || '',
+      marca:       item.marca       || item.Marca  || '',
+      precio:      Number(item.precio      || item.Precio_Oferta  || 0),
+      precioOld:   item.precioOld   || item.Precio_Original || null,
+      tipo:        item.tipo        || item.Tipo   || '',
+      ml:          item.ml          || item.ML     || '',
+      genero:      item.genero      || item.Genero || '',
+      familia:     item.familia     || item.Familia || '',
+      bestseller:  !!(item.bestseller || item.Es_Top),
+      oferta:      !!(item.oferta    || item.En_Oferta),
+      nuevo:       !!(item.nuevo     || item.Nuevo),
+      orden:       Number(item.orden || item.Ventas_Totales || 99),
+      notas:       item.notas       || [],
+      foto:        item.foto        || item.Foto   || null
+    };
+
+    if(idx >= 0){
+      /* Actualiza producto existente */
+      Object.assign(products[idx], normalizado);
+    } else {
+      /* Inserta producto nuevo */
+      products.push(normalizado);
+    }
+  });
+
+  /* Refresca el catálogo si el shop está abierto */
+  const shopEl = document.getElementById('shop');
+  if(shopEl && shopEl.classList.contains('open')){
+    applyFilters();
+  }
+  console.info(`[VANT] renderizarProductos: ${datos.length} producto(s) sincronizados.`);
+}
+window.renderizarProductos = renderizarProductos;
 
 /* ============================================================
    CARD interactions
