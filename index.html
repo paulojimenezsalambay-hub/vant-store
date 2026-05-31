@@ -1943,6 +1943,11 @@ body.shop-locked { overflow: hidden; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Ancla bestsellers: compensa altura del shop-bar (~64px) + margen */
+#seccion-bestsellers {
+  scroll-margin-top: 80px;
+}
+
 /* Modo Bestsellers activo — borde dorado sutil en el grid */
 #catalogGrid.is-filtered {
   border-top: 1px solid rgba(200,169,107,.18);
@@ -2589,6 +2594,7 @@ img { max-width: 100%; height: auto; }
       </select>
     </div>
 
+    <div id="seccion-bestsellers"></div>
     <div class="grid-3 stagger shop-grid" id="catalogGrid"></div>
     <div class="shop-pagination" id="shopPagination"></div>
   </div>
@@ -4007,17 +4013,21 @@ bindJumps();
    FILTRO BESTSELLERS — función pública callable desde n8n/botones
    ============================================================ */
 function activarFiltroBestsellers(){
-  /* 1. Abre el shop con filtro bestseller */
+  /* 1. Aplica filtro bestseller y abre el shop */
   openShop({ bestseller: true });
 
-  /* 2. Scroll al encabezado del shop para que el usuario no se pierda */
+  /* 2. Scroll preciso a #seccion-bestsellers (dentro del overlay del shop) */
   setTimeout(()=>{
-    const shopBar = document.querySelector('.shop-bar') || document.getElementById('shop');
-    if(shopBar) shopBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    /* Fallback: scroll interno del overlay al top */
+    const ancla  = document.getElementById('seccion-bestsellers');
     const shopEl = document.getElementById('shop');
-    if(shopEl) shopEl.scrollTop = 0;
-  }, 120);
+    if(ancla && shopEl){
+      /* El shop es un overlay con scroll propio: calculamos offset relativo */
+      const offsetTop = ancla.offsetTop - 80;   /* 80 = altura shop-bar */
+      shopEl.scrollTo({ top: Math.max(0, offsetTop), behavior: 'smooth' });
+    } else if(shopEl){
+      shopEl.scrollTop = 0;
+    }
+  }, 150);
 }
 window.activarFiltroBestsellers = activarFiltroBestsellers;
 
