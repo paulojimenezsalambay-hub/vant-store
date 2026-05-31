@@ -1923,6 +1923,27 @@ body.shop-locked { overflow: hidden; }
 }
 
 /* ============================================================
+   CARD — transiciones de filtrado elegantes
+   ============================================================ */
+.card {
+  transition: opacity 0.3s ease, transform 0.3s ease, border-color .4s, box-shadow .4s;
+}
+.card.hidden {
+  opacity: 0;
+  transform: scale(0.96);
+  pointer-events: none;
+  display: none;
+}
+/* Entrada suave al renderizar página */
+#catalogGrid.in .card {
+  animation: cardFadeIn 0.35s var(--ease) both;
+}
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
    RESPONSIVE MÓVIL — bloque maestro
    ============================================================ */
 
@@ -2230,7 +2251,7 @@ img { max-width: 100%; height: auto; }
       </p>
       <div class="hero-ctas">
         <a class="btn btn-gold" data-jump="coleccion"><span>Ver colección</span></a>
-        <a class="btn btn-ghost btn-bestsellers" data-jump="coleccion" data-filter='{"bestseller":true}'><span>Más vendidos</span></a>
+        <a class="btn btn-ghost btn-bestsellers" href="#" onclick="event.preventDefault();activarFiltroBestsellers();"><span>Más vendidos</span></a>
       </div>
       <div class="hero-trust">
         <span>★ 4,9 / 5</span>
@@ -2435,6 +2456,7 @@ img { max-width: 100%; height: auto; }
 </div>
 
 <!-- ============================== SHOP OVERLAY (pantalla "tienda") ============================== -->
+<div id="seccion-mas-vendidos" style="scroll-margin-top:80px"></div>
 <div class="shop" id="shop" aria-hidden="true">
   <header class="shop-bar">
     <button class="shop-close" id="shopClose" aria-label="Volver">←</button>
@@ -3148,6 +3170,21 @@ function waLink(p){
     ? `$${p.precio} (antes $${p.precioOld})`
     : `$${p.precio}`;
 
+  const pedidoJson = JSON.stringify({
+    origen:   'directo',
+    items: [{
+      id:       p.slug,
+      nombre:   p.nombre,
+      marca:    p.marca,
+      tipo:     p.tipo,
+      ml:       p.ml,
+      precio:   p.precio,
+      cantidad: 1,
+      subtotal: p.precio
+    }],
+    total: p.precio
+  });
+
   const msg = [
     '🛍️ PEDIDO VANT STORE',
     '',
@@ -3157,6 +3194,10 @@ function waLink(p){
     `Tipo: ${p.tipo}`,
     `Tamaño: ${p.ml}`,
     `Género: ${p.genero}`,
+    '',
+    '--- DATOS_PEDIDO_JSON ---',
+    pedidoJson,
+    '--- FIN_DATOS ---',
     '',
     'Por favor, indícame los datos de pago para finalizar mi pedido.'
   ].join('\n');
@@ -3328,21 +3369,41 @@ document.addEventListener('keydown', e => {
 
 /* Checkout → WhatsApp con mensaje formateado */
 function buildCartMessage(){
-  const lines = [];
-  lines.push('Hola Vant Store! Me gustaría hacer este pedido:');
-  lines.push('');
+  const items = [];
   Object.entries(cart).forEach(([slug, item]) => {
     const p = products.find(p => p.slug === slug);
     if(!p) return;
-    lines.push(`• ${p.marca} — ${p.nombre} (${p.ml})`);
-    lines.push(`  × ${item.qty} = ${p.precio * item.qty} $`);
+    items.push({
+      id:       p.slug,
+      nombre:   p.nombre,
+      marca:    p.marca,
+      tipo:     p.tipo,
+      ml:       p.ml,
+      precio:   p.precio,
+      cantidad: item.qty,
+      subtotal: p.precio * item.qty
+    });
   });
-  lines.push('');
-  lines.push(`TOTAL: ${cartTotal()} $`);
-  lines.push('');
-  lines.push('¿Podríais confirmarme disponibilidad y forma de envío?');
-  lines.push('Gracias!');
-  return lines.join('\n');
+  const total = cartTotal();
+
+  /* Bloque legible para el usuario */
+  const lineas = [
+    '🛍️ PEDIDO VANT STORE',
+    '',
+    ...items.map(i =>
+      `• ${i.marca} — ${i.nombre} (${i.ml})\n  × ${i.cantidad} = ${i.subtotal} $`
+    ),
+    '',
+    `TOTAL: ${total} $`,
+    '',
+    /* JSON plano para que n8n pueda parsear el pedido automáticamente */
+    '--- DATOS_PEDIDO_JSON ---',
+    JSON.stringify({ origen: 'carrito', items, total }),
+    '--- FIN_DATOS ---',
+    '',
+    '¿Podéis confirmarme disponibilidad y forma de envío? ¡Gracias!'
+  ];
+  return lineas.join('\n');
 }
 
 document.getElementById('cartCheckout').addEventListener('click', () => {
@@ -3370,7 +3431,23 @@ function cardHTML(p){
     ? `<div class="badge">-${Math.round((1-p.precio/p.precioOld)*100)}%</div>`
     : (p.bestseller ? `<div class="badge">Top</div>`
     : (p.nuevo ? `<div class="badge alt">Nuevo</div>` : ''));
-  return `<article class="card" data-slug="${p.slug}" data-open="${p.slug}">
+  return `<article class="card"
+    data-slug="${p.slug}"
+    data-open="${p.slug}"
+    data-id="${p.slug}"
+    data-nombre="${escapeHTML(p.nombre)}"
+    data-marca="${escapeHTML(p.marca)}"
+    data-precio="${p.precio}"
+    data-precio-old="${p.precioOld || ''}"
+    data-tipo="${escapeHTML(p.tipo)}"
+    data-ml="${escapeHTML(p.ml)}"
+    data-genero="${escapeHTML(p.genero)}"
+    data-familia="${escapeHTML(p.familia)}"
+    data-es-top="${p.bestseller ? 'true' : 'false'}"
+    data-es-oferta="${p.oferta ? 'true' : 'false'}"
+    data-es-nuevo="${p.nuevo ? 'true' : 'false'}"
+    data-orden="${p.orden || 99}"
+  >
     <div class="shine"></div>
     ${badge}
     <button class="add-cart" data-add="${p.slug}" aria-label="Añadir al carrito" title="Añadir al carrito">+</button>
@@ -3547,7 +3624,7 @@ brandChipsEl.innerHTML =
 /* ============================================================
    ESTADO + FILTROS
    ============================================================ */
-const state = { genero:'', marca:'', tipo:'', familia:'', priceMin:null, priceMax:null, sort:'orden', slug:'', oferta:false, query:'', _shopOrigin:null };
+const state = { genero:'', marca:'', tipo:'', familia:'', priceMin:null, priceMax:null, sort:'orden', slug:'', oferta:false, bestseller:false, query:'', _shopOrigin:null };
 const catGrid = document.getElementById('catalogGrid');
 const catCount = document.getElementById('catCount');
 const shopPagination = document.getElementById('shopPagination');
@@ -3577,7 +3654,8 @@ function renderActiveChips(){
   if(state.marca)   active.push({k:'marca',   v:state.marca});
   if(state.tipo)    active.push({k:'tipo',    v:state.tipo});
   if(state.familia) active.push({k:'familia', v:state.familia});
-  if(state.oferta)  active.push({k:'oferta',  v:'En oferta'});
+  if(state.oferta)      active.push({k:'oferta',     v:'En oferta'});
+  if(state.bestseller)  active.push({k:'bestseller', v:'Más vendidos'});
   if(state.priceMin) active.push({k:'priceMin', v:'Mín '+state.priceMin+'$'});
   if(state.priceMax) active.push({k:'priceMax', v:'Máx '+state.priceMax+'$'});
   chipsEl.innerHTML = active.map(a =>
@@ -3586,9 +3664,10 @@ function renderActiveChips(){
   chipsEl.querySelectorAll('[data-clear]').forEach(b=>{
     b.addEventListener('click',()=>{
       const k = b.dataset.clear;
-      if(k==='priceMin') state.priceMin = null;
-      else if(k==='priceMax') state.priceMax = null;
-      else if(k==='oferta') state.oferta = false;
+      if(k==='priceMin')    state.priceMin   = null;
+      else if(k==='priceMax')    state.priceMax   = null;
+      else if(k==='oferta')      state.oferta     = false;
+      else if(k==='bestseller')  state.bestseller = false;
       else state[k] = '';
       setFilters({}); // refresca chips + UI
       applyFilters();
@@ -3631,7 +3710,8 @@ function applyFilters(){
     if(state.marca   && p.marca   !== state.marca) return false;
     if(state.tipo    && p.tipo    !== state.tipo) return false;
     if(state.familia && p.familia !== state.familia) return false;
-    if(state.oferta  && !p.oferta) return false;
+    if(state.oferta      && !p.oferta)      return false;
+    if(state.bestseller  && !p.bestseller)  return false;
     if(state.priceMin!==null && p.precio < state.priceMin) return false;
     if(state.priceMax!==null && p.precio > state.priceMax) return false;
     if(ql && !p.nombre.toLowerCase().includes(ql) && !p.marca.toLowerCase().includes(ql) &&
@@ -3697,7 +3777,7 @@ document.getElementById('clearFilters').addEventListener('click',()=>{
   const ssp = document.getElementById('shopSearchPanel');
   if(ssi) ssi.value = '';
   if(ssp) ssp.value = '';
-  setFilters({genero:'',marca:'',tipo:'',familia:'',priceMin:null,priceMax:null,sort:'orden',slug:'',oferta:false});
+  setFilters({genero:'',marca:'',tipo:'',familia:'',priceMin:null,priceMax:null,sort:'orden',slug:'',oferta:false,bestseller:false});
   document.getElementById('sort').value = 'orden';
   applyFilters();
 });
@@ -3801,13 +3881,14 @@ function openShop(filterObj){
   // Setear filtros
   if(filterObj && Object.keys(filterObj).length){
     setFilters({
-      genero:   filterObj.genero   ?? '',
-      marca:    filterObj.marca    ?? '',
-      tipo:     filterObj.tipo     ?? '',
-      familia:  filterObj.familia  ?? '',
-      oferta:   filterObj.oferta   ?? false,
-      priceMin: filterObj.priceMin ?? null,
-      priceMax: filterObj.priceMax ?? null
+      genero:      filterObj.genero      ?? '',
+      marca:       filterObj.marca       ?? '',
+      tipo:        filterObj.tipo        ?? '',
+      familia:     filterObj.familia     ?? '',
+      oferta:      filterObj.oferta      ?? false,
+      bestseller:  filterObj.bestseller  ?? false,
+      priceMin:    filterObj.priceMin    ?? null,
+      priceMax:    filterObj.priceMax    ?? null
     });
   } else {
     setFilters({genero:'',marca:'',tipo:'',familia:'',oferta:false,priceMin:null,priceMax:null,slug:''});
@@ -3865,6 +3946,23 @@ function bindJumps(){
   });
 }
 bindJumps();
+
+/* ============================================================
+   FILTRO BESTSELLERS — función pública callable desde n8n/botones
+   ============================================================ */
+function activarFiltroBestsellers(){
+  /* 1. Abre el shop con filtro bestseller */
+  openShop({ bestseller: true });
+  /* 2. Scroll suave al ancla (con offset del nav) */
+  const ancla = document.getElementById('seccion-mas-vendidos');
+  if(ancla){
+    setTimeout(()=>{
+      ancla.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+}
+/* Exponer globalmente para integraciones externas (n8n webhooks, etc.) */
+window.activarFiltroBestsellers = activarFiltroBestsellers;
 
 /* ============================================================
    CARD interactions
