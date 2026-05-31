@@ -10,36 +10,37 @@
       },
       "name": "Webhook · POST actualizar-stock",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1.1,
+      "typeVersion": 2,
       "position": [240, 300],
-      "id": "wh-stock",
-      "webhookId": "actualizar-stock"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901201",
+      "webhookId": "d3e4f5a6-b7c8-9012-defa-345678901201"
     },
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "// Acepta: { id_producto: 'perfume-01', stock_disponible: 3 }\nconst raw = $input.item.json;\nlet data;\nif (typeof raw.body === 'string') {\n  try { data = JSON.parse(raw.body); } catch(e) { data = {}; }\n} else if (raw.body && typeof raw.body === 'object') {\n  data = raw.body;\n} else {\n  data = raw;\n}\nconst id    = String(data.id_producto    || '').trim();\nconst stock = Number(data.stock_disponible);\nif (!id)               throw new Error('id_producto es requerido');\nif (isNaN(stock) || stock < 0) throw new Error('stock_disponible debe ser un número >= 0');\nreturn { json: { id_producto: id, stock_disponible: stock } };"
+        "jsCode": "const raw = $input.item.json;\nlet data;\nif (typeof raw.body === 'string') {\n  try { data = JSON.parse(raw.body); } catch(e) { data = {}; }\n} else if (raw.body && typeof raw.body === 'object') {\n  data = raw.body;\n} else {\n  data = raw;\n}\nconst id    = String(data.id_producto    || '').trim();\nconst stock = Number(data.stock_disponible);\nif (!id)                        throw new Error('id_producto es requerido');\nif (isNaN(stock) || stock < 0)  throw new Error('stock_disponible debe ser un número >= 0');\nreturn { json: { id_producto: id, stock_disponible: stock } };"
       },
       "name": "Code · Parsear y Validar",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [460, 300],
-      "id": "code-validate"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901202"
     },
     {
       "parameters": {
         "method": "GET",
         "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer pat7e7kEFGcyqdjzU.c447b332cfc5ac33096955062c215f8868cc524c4d03bf7c3f96766083132d47" }
+          ]
+        },
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
-            {
-              "name": "filterByFormula",
-              "value": "={{ `{ID_Producto}='${$json.id_producto}'` }}"
-            },
-            { "name": "maxRecords", "value": "1" }
+            { "name": "filterByFormula", "value": "={{ `{ID_Producto}='${$json.id_producto}'` }}" },
+            { "name": "maxRecords",      "value": "1" }
           ]
         },
         "options": {}
@@ -48,7 +49,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [680, 300],
-      "id": "http-search-product"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901203"
     },
     {
       "parameters": {
@@ -66,7 +67,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [900, 300],
-      "id": "if-exists"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901204"
     },
     {
       "parameters": {
@@ -78,14 +79,14 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1120, 440],
-      "id": "resp-not-found"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901205"
     },
     {
       "parameters": {
         "values": {
           "string": [
-            { "name": "record_id",      "value": "={{ $json.records[0].id }}" },
-            { "name": "nombre_producto","value": "={{ $json.records[0].fields.Nombre || $('Code · Parsear y Validar').item.json.id_producto }}" }
+            { "name": "record_id",       "value": "={{ $json.records[0].id }}" },
+            { "name": "nombre_producto", "value": "={{ $json.records[0].fields.Nombre || $('Code · Parsear y Validar').item.json.id_producto }}" }
           ],
           "number": [
             { "name": "stock_nuevo",    "value": "={{ $('Code · Parsear y Validar').item.json.stock_disponible }}" },
@@ -98,14 +99,19 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3,
       "position": [1120, 160],
-      "id": "set-data"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901206"
     },
     {
       "parameters": {
         "method": "PATCH",
         "url": "=https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas/{{ $json.record_id }}",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer pat7e7kEFGcyqdjzU.c447b332cfc5ac33096955062c215f8868cc524c4d03bf7c3f96766083132d47" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ fields: { Stock_Disponible: $json.stock_nuevo } }) }}",
@@ -115,7 +121,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1340, 160],
-      "id": "http-update"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901207"
     },
     {
       "parameters": {
@@ -133,7 +139,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [1560, 160],
-      "id": "if-critico"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901208"
     },
     {
       "parameters": {
@@ -146,7 +152,7 @@
             { "name": "apikey", "value": "TU_CALLMEBOT_APIKEY" },
             {
               "name": "text",
-              "value": "={{ ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? '🚨 AGOTADO' : '⚠️ Stock bajo') + ' · VANT Store: ' + $('Set · Extraer Datos').item.json.nombre_producto + ' — ' + ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? 'SIN STOCK' : $('Set · Extraer Datos').item.json.stock_nuevo + ' uds. restantes') }}"
+              "value": "={{ ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? 'AGOTADO' : 'Stock bajo') + ' · VANT Store: ' + $('Set · Extraer Datos').item.json.nombre_producto + ' — ' + ($('Set · Extraer Datos').item.json.stock_nuevo === 0 ? 'SIN STOCK' : $('Set · Extraer Datos').item.json.stock_nuevo + ' uds. restantes') }}"
             }
           ]
         },
@@ -156,19 +162,19 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1780, 60],
-      "id": "callmebot-critico"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901209"
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ ok: true, id_producto: $('Set · Extraer Datos').item.json.record_id.split('rec')[1] ? $('Code · Parsear y Validar').item.json.id_producto : $('Code · Parsear y Validar').item.json.id_producto, stock_anterior: $('Set · Extraer Datos').item.json.stock_anterior, stock_nuevo: $('Set · Extraer Datos').item.json.stock_nuevo }) }}",
+        "responseBody": "={{ JSON.stringify({ ok: true, id_producto: $('Code · Parsear y Validar').item.json.id_producto, stock_anterior: $('Set · Extraer Datos').item.json.stock_anterior, stock_nuevo: $('Set · Extraer Datos').item.json.stock_nuevo }) }}",
         "options": {}
       },
       "name": "Respond · Stock Actualizado",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [1780, 280],
-      "id": "resp-ok"
+      "id": "d3e4f5a6-b7c8-9012-defa-345678901210"
     }
   ],
   "connections": {
@@ -183,8 +189,8 @@
     },
     "IF · Producto Existe": {
       "main": [
-        [{ "node": "Set · Extraer Datos",            "type": "main", "index": 0 }],
-        [{ "node": "Respond · Producto No Encontrado","type": "main", "index": 0 }]
+        [{ "node": "Set · Extraer Datos",             "type": "main", "index": 0 }],
+        [{ "node": "Respond · Producto No Encontrado", "type": "main", "index": 0 }]
       ]
     },
     "Set · Extraer Datos": {

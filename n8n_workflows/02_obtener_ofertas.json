@@ -10,17 +10,21 @@
       },
       "name": "Webhook · GET obtener-ofertas",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1.1,
+      "typeVersion": 2,
       "position": [240, 300],
-      "id": "wh-ofertas",
-      "webhookId": "obtener-ofertas"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890101",
+      "webhookId": "c2d3e4f5-a6b7-8901-cdef-234567890101"
     },
     {
       "parameters": {
         "method": "GET",
         "url": "https://api.airtable.com/v0/appkHx2y58OuG1UuF/Productos_Ofertas",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer pat7e7kEFGcyqdjzU.c447b332cfc5ac33096955062c215f8868cc524c4d03bf7c3f96766083132d47" }
+          ]
+        },
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
@@ -33,18 +37,18 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [460, 300],
-      "id": "http-airtable"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890102"
     },
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Transforma los registros de Airtable al formato que espera la landing:\n// { \"perfume-01\": { ID_Producto, Nombre, Precio_Original, ... }, ... }\nconst records = $input.first().json.records || [];\nconst productos = {};\nconst stockBajo = [];\n\nfor (const record of records) {\n  const f = record.fields || {};\n  const id = String(f.ID_Producto || '').trim();\n  if (!id) continue;\n\n  const stock = Number(f.Stock_Disponible) || 0;\n\n  productos[id] = {\n    ID_Producto:     id,\n    Nombre:          f.Nombre          || '',\n    Precio_Original: f.Precio_Original || 0,\n    Precio_Oferta:   f.Precio_Oferta   || 0,\n    En_Oferta:       Boolean(f.En_Oferta),\n    Etiqueta_Oferta: f.Etiqueta_Oferta || '',\n    Foto:            Array.isArray(f.Foto) ? f.Foto : [],\n    Stock_Disponible: stock\n  };\n\n  // Alerta: entre 1 y 4 unidades restantes\n  if (stock > 0 && stock < 5) {\n    stockBajo.push({ id, nombre: f.Nombre || id, stock });\n  }\n}\n\nreturn [{ json: { productos, stockBajo } }];"
+        "jsCode": "const records = $input.first().json.records || [];\nconst productos = {};\nconst stockBajo = [];\n\nfor (const record of records) {\n  const f = record.fields || {};\n  const id = String(f.ID_Producto || '').trim();\n  if (!id) continue;\n\n  const stock = Number(f.Stock_Disponible) || 0;\n\n  productos[id] = {\n    ID_Producto:      id,\n    Nombre:           f.Nombre          || '',\n    Precio_Original:  f.Precio_Original || 0,\n    Precio_Oferta:    f.Precio_Oferta   || 0,\n    En_Oferta:        Boolean(f.En_Oferta),\n    Etiqueta_Oferta:  f.Etiqueta_Oferta || '',\n    Foto:             Array.isArray(f.Foto) ? f.Foto : [],\n    Stock_Disponible: stock\n  };\n\n  if (stock > 0 && stock < 5) {\n    stockBajo.push({ id, nombre: f.Nombre || id, stock });\n  }\n}\n\nreturn [{ json: { productos, stockBajo } }];"
       },
       "name": "Code · Transformar + Stock Bajo",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [680, 300],
-      "id": "code-transform"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890103"
     },
     {
       "parameters": {
@@ -63,7 +67,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
       "position": [900, 300],
-      "id": "resp-productos"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890104"
     },
     {
       "parameters": {
@@ -81,7 +85,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [1120, 300],
-      "id": "if-stock-bajo"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890105"
     },
     {
       "parameters": {
@@ -92,7 +96,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [1340, 180],
-      "id": "split-stock"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890106"
     },
     {
       "parameters": {
@@ -105,7 +109,7 @@
             { "name": "apikey", "value": "TU_CALLMEBOT_APIKEY" },
             {
               "name": "text",
-              "value": "={{ '⚠️ VANT Store · Stock bajo: ' + $json.nombre + ' (' + $json.id + ') — solo ' + $json.stock + ' unidades disponibles' }}"
+              "value": "={{ 'VANT Store · Stock bajo: ' + $json.nombre + ' (' + $json.id + ') — solo ' + $json.stock + ' unidades disponibles' }}"
             }
           ]
         },
@@ -115,7 +119,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [1560, 180],
-      "id": "callmebot-alert"
+      "id": "c2d3e4f5-a6b7-8901-cdef-234567890107"
     }
   ],
   "connections": {
