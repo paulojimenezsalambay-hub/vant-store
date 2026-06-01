@@ -169,13 +169,15 @@ async function handleObtenerOfertas(req, res) {
 
     productos[id] = {
       ID_Producto:      id,
-      Nombre:           f.Nombre          || '',
-      Precio_Original:  f.Precio_Original || 0,
-      Precio_Oferta:    f.Precio_Oferta   || 0,
+      Nombre:           f.Nombre            || '',
+      Precio_Original:  f.Precio_Original   || 0,
+      Precio_Oferta:    f.Precio_Oferta     || 0,
       En_Oferta:        Boolean(f.En_Oferta),
-      Etiqueta_Oferta:  f.Etiqueta_Oferta || '',
+      Etiqueta_Oferta:  f.Etiqueta_Oferta   || '',
       Foto:             Array.isArray(f.Foto) ? f.Foto : [],
-      Stock_Disponible: stock
+      Stock_Disponible: stock,
+      Ventas_Totales:   Number(f.Ventas_Totales) || 0,
+      Es_Top:           Boolean(f.Es_Top)
     };
 
     if (stock > 0 && stock < 5) stockBajo.push({ id, nombre: f.Nombre || id, stock });

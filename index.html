@@ -66,8 +66,8 @@
 </script>
 
 <!-- Content Security Policy: defensa en profundidad
-     PRODUCCIÓN: reemplazar http://localhost:5678 por la URL real de n8n en la nube,
-     p.ej. https://n8n.tudominio.com
+     PRODUCCIÓN: reemplazar http://localhost:5680 por la URL real de n8n en la nube,
+     p.ej. https://api.vantstore.ec
      En Cloudflare Pages añadir la cabecera CSP en _headers en lugar de esta meta tag
      para mayor fiabilidad. -->
 <meta http-equiv="Content-Security-Policy" content="
@@ -76,8 +76,9 @@
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' https://wa.me http://localhost:5678 http://localhost:5680;
-  form-action 'self' https://wa.me;
+  connect-src 'self' http://localhost:5680 https://api.vantstore.ec;
+  frame-src https://airtable.com;
+  form-action 'self';
   frame-ancestors 'none';
   base-uri 'self';
 ">
@@ -2194,7 +2195,7 @@ img { max-width: 100%; height: auto; }
           </div>
         </div>
       </li>
-      <li><a href="#" onclick="event.preventDefault();activarFiltroBestsellers();">Más vendidos</a></li>
+      <li><a href="#" onclick="event.preventDefault();activarFiltroBestsellers();">Bestsellers</a></li>
       <li><a data-jump="coleccion" data-filter='{"oferta":true}'>Ofertas</a></li>
       <li>
         <a data-jump="coleccion">Marcas <span class="caret">▾</span></a>
@@ -2610,20 +2611,12 @@ img { max-width: 100%; height: auto; }
     <span class="eyebrow">El club Vant</span>
     <h2 id="nlModalTitle">Recibe lanzamientos<br><span class="display-i gold-text">antes que nadie.</span></h2>
     <p>Acceso anticipado a novedades, ofertas privadas y guías olfativas curadas por nuestro equipo.</p>
-    <form id="formNewsletter" novalidate>
-      <input type="email" id="newsletterEmail" placeholder="Tu email" required autocomplete="email">
-      <button type="submit" class="btn btn-gold" id="btnSuscribir"><span>Suscribirme</span></button>
-    </form>
-    <div id="newsletterMsg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
-
-    <div class="nl-modal-divider">
-      <p>¿Quieres recibir nuestras <span class="gold-text">ofertas exclusivas</span> directamente?</p>
-      <form id="formOfertas" novalidate>
-        <input type="email" id="ofertasEmail" placeholder="Tu email para las ofertas" required autocomplete="email">
-        <button type="submit" class="btn btn-ghost" id="btnOfertas"><span>Obtener Ofertas</span></button>
-      </form>
-      <div id="ofertasMsg" style="margin-top:12px;font-size:13px;min-height:18px;"></div>
-    </div>
+    <iframe
+      src="https://airtable.com/embed/appkHx2y58OuG1UuF/pagatCELu3iA0x01y/form"
+      style="width:100%;height:440px;border:none;border-radius:8px;margin-top:8px;"
+      title="Formulario de suscripción Vant Store"
+      loading="lazy">
+    </iframe>
   </div>
 </div>
 
@@ -3021,7 +3014,7 @@ function bottleSVG(p){
    ⚠ CAMBIA AQUÍ tu número real cuando lances el proyecto.
    Formato internacional, solo dígitos (sin +, sin espacios).
    ============================================================ */
-const WHATSAPP_NUMBER = '593999999999';  // ← Ecuador (+593) — actualizar con número real
+const WHATSAPP_NUMBER = '593969933866';
 const CONTACT_EMAIL   = 'hola@vantstore.com';
 
 /* ============================================================
@@ -3858,6 +3851,10 @@ function updateShopTitle(){
   if(state.familia) { title = state.familia; eyebrow = 'Familia olfativa'; }
   if(state.marca)   { title = state.marca;   eyebrow = 'Marca'; }
   if(state.genero)  { title = state.genero;  eyebrow = 'Perfumes para'; }
+  /* Bestsellers solos */
+  if(state.bestseller && !state.genero && !state.marca && !state.familia && !state.tipo){
+    title = 'Bestsellers'; eyebrow = 'Top ventas';
+  }
   /* Oferta sola (sin otros filtros que ya tienen prioridad) */
   if(state.oferta && !state.genero && !state.marca && !state.familia && !state.tipo){
     title = 'Ofertas'; eyebrow = 'Selección de la semana';
@@ -3907,6 +3904,11 @@ function jumpTo(target, filterObj){
     // Si el destino es 'coleccion' → abrir tienda como pantalla
     if(target === 'coleccion'){
       openShop(filterObj);
+      return;
+    }
+    // Tile Bestsellers → activar filtro bestseller con scroll a #seccion-bestsellers
+    if(target === 'bestsellers'){
+      activarFiltroBestsellers();
       return;
     }
     // Si veníamos del shop, cerrarlo antes de hacer scroll
@@ -4435,8 +4437,6 @@ const DEV_API_BASE  = 'http://localhost:5680/webhook-test';
 
 const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
 
-const WH_SUSCRIBIR = `${API_BASE_URL}/suscribir-vant`;
-const WH_OFERTAS   = `${API_BASE_URL}/suscribir-vant`;  // mismo endpoint, diferenciado por campo origen='ofertas'
 const WH_GET_DATOS = `${API_BASE_URL}/obtener-ofertas`;
 
 /* Normaliza un nombre quitando tildes/diacríticos para comparar */
@@ -4455,21 +4455,46 @@ async function syncAirtableImages(){
     if(!res.ok) return;
     const data = await res.json();
     const newSlugs = [];
+    let datosActualizados = false;
+
     for(const ap of Object.values(data)){
-      const fotos = Array.isArray(ap.Foto) ? ap.Foto : [];
-      if(!fotos.length) continue;
       const slug = _nombreToSlug[_normName(ap.Nombre)];
       if(!slug) continue;
+
+      /* ── Sincronizar Es_Top y Ventas_Totales desde Airtable ── */
+      const prod = products.find(p => p.slug === slug);
+      if(prod){
+        if(ap.Es_Top !== undefined){
+          prod.bestseller = Boolean(ap.Es_Top);
+          datosActualizados = true;
+        }
+        if(ap.Ventas_Totales !== undefined){
+          prod.orden = Number(ap.Ventas_Totales) || prod.orden;
+          datosActualizados = true;
+        }
+        /* Actualizar data-es-top en cards ya renderizadas */
+        document.querySelectorAll(`.card[data-slug="${CSS.escape(slug)}"]`).forEach(card => {
+          card.dataset.esTop = prod.bestseller ? 'true' : 'false';
+        });
+      }
+
+      /* ── Sincronizar imágenes ── */
+      const fotos = Array.isArray(ap.Foto) ? ap.Foto : [];
+      if(!fotos.length) continue;
       const foto = fotos[0];
-      const url = (foto.thumbnails && foto.thumbnails.large && foto.thumbnails.large.url)
-                  || foto.url;
+      const url = (foto.thumbnails?.large?.url) || foto.url;
       if(!url) continue;
       airtableImages[slug] = url;
       newSlugs.push(slug);
     }
+
+    /* Refrescar catálogo si el shop está abierto y hubo cambios en Es_Top */
+    if(datosActualizados){
+      const shopEl = document.getElementById('shop');
+      if(shopEl?.classList.contains('open')) applyFilters();
+    }
+
     if(!newSlugs.length) return;
-    /* Limpiar src y cache de productos que recibieron URL de Airtable
-       para que bindBottleImages re-pruebe con la URL de Airtable primero */
     newSlugs.forEach(slug => {
       delete lastWorkingUrl[slug];
       const host = document.querySelector(`.bottle-host[data-slug="${CSS.escape(slug)}"]`);
@@ -4482,109 +4507,6 @@ async function syncAirtableImages(){
   } catch(_){}
 }
 
-/**
- * enviarFormulario(event, url)
- * Envía el email del formulario al webhook de n8n indicado.
- *
- * CORS: se usa Content-Type: text/plain para que el navegador NO
- * envíe una petición OPTIONS de preflight, lo que evita los errores
- * de CORS con n8n en localhost. El body sigue siendo JSON válido y
- * n8n lo parsea igual.
- *
- * @param {Event}  event   - El evento submit del formulario
- * @param {string} url     - URL del webhook de n8n
- * @param {string} emailId - ID del input de email
- * @param {string} origen  - Etiqueta de origen para el payload
- * @param {HTMLElement} msgEl  - Elemento donde mostrar el estado
- * @param {HTMLElement} btn    - Botón de submit
- * @param {string} okMsg   - Mensaje de éxito
- */
-async function enviarFormulario(event, url, emailId, origen, msgEl, btn, okMsg){
-  event.preventDefault();
-
-  const email = document.getElementById(emailId).value.trim();
-  if(!email) return;
-
-  /* Estado de carga */
-  btn.disabled = true;
-  const labelOrig = btn.querySelector('span').textContent;
-  btn.querySelector('span').textContent = 'Enviando…';
-  msgEl.textContent = '';
-  msgEl.style.color = '';
-
-  const payload = JSON.stringify({
-    email,
-    origen,
-    timestamp: new Date().toISOString()
-  });
-
-  try {
-    /*
-     * Content-Type: text/plain evita el preflight OPTIONS de CORS.
-     * n8n recibe el JSON en el body y lo parsea correctamente
-     * independientemente del Content-Type declarado.
-     */
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: payload
-    });
-
-    if(res.ok){
-      msgEl.textContent = okMsg;
-      msgEl.style.color = 'var(--gold)';
-      event.target.reset();
-    } else {
-      msgEl.textContent = `Error ${res.status}: intenta de nuevo.`;
-      msgEl.style.color = '#e07a7a';
-    }
-
-  } catch(err){
-    /*
-     * Si llega aquí puede ser:
-     *  - n8n no está corriendo en localhost:5678
-     *  - El flujo de n8n no está activo en modo Test (botón "Test workflow")
-     *  - Bloqueado por firewall o red
-     */
-    if(err instanceof TypeError && err.message.includes('fetch')){
-      msgEl.textContent = 'Error de conexión: asegúrate de que n8n esté activo y el flujo en modo Test.';
-    } else {
-      msgEl.textContent = 'Error de conexión: intenta de nuevo.';
-    }
-    msgEl.style.color = '#e07a7a';
-    console.error(`[Webhook ${origen}]`, err.message);
-
-  } finally {
-    btn.disabled = false;
-    btn.querySelector('span').textContent = labelOrig;
-  }
-}
-
-/* — Newsletter — */
-document.getElementById('formNewsletter').addEventListener('submit', e =>
-  enviarFormulario(
-    e,
-    WH_SUSCRIBIR,
-    'newsletterEmail',
-    'newsletter',
-    document.getElementById('newsletterMsg'),
-    document.getElementById('btnSuscribir'),
-    '¡Gracias! Pronto sabrás de nosotros.'
-  )
-);
-
-/* — Ofertas — */
-document.getElementById('formOfertas').addEventListener('submit', e =>
-  enviarFormulario(
-    e,
-    WH_OFERTAS,
-    'ofertasEmail',
-    'ofertas',
-    document.getElementById('ofertasMsg'),
-    document.getElementById('btnOfertas'),
-    '¡Listo! Te enviaremos las mejores ofertas.'
-  )
-);
 
 /* ============================================================
    NEWSLETTER MODAL
