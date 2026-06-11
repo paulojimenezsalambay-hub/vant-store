@@ -4442,10 +4442,10 @@ async function syncAirtableImages(){
     const res = await fetch(WH_GET_DATOS + '?t=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) return;
     const data = await res.json();
-    /* DEBUG TEMPORAL — abre DevTools → Console para ver qué devuelve n8n */
+    /* DEBUG TEMPORAL */
     const primerItem = Object.values(data)[0];
     console.log('[VantSync] Campos recibidos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
-    console.log('[VantSync] Primer registro:', primerItem);
+    console.log('[VantSync] Total registros recibidos:', Object.values(data).length);
     const newSlugs = [];
     let datosActualizados = false;
 
@@ -4454,7 +4454,10 @@ async function syncAirtableImages(){
 
     for(const ap of Object.values(data)){
       const slug = _findSlug(ap.Nombre);
-      if(!slug) continue;
+      if(!slug){
+        console.warn('[VantSync] Sin match:', ap.Nombre?.trim());
+        continue;
+      }
 
       /* ── Sincronizar datos desde Airtable ── */
       const prod = products.find(p => p.slug === slug);
@@ -4477,9 +4480,11 @@ async function syncAirtableImages(){
           if(enOferta && precioOferta > 0 && precioOferta < precioOriginal){
             prod.precio    = precioOferta;
             prod.precioOld = precioOriginal;
+            console.log(`[VantSync] OFERTA: ${slug} → ${precioOferta}$ (antes ${precioOriginal}$)`);
           } else {
             prod.precio    = precioOriginal;
             prod.precioOld = null;
+            if(enOferta) console.log(`[VantSync] OFERTA sin precio rebajado: ${slug} → ${precioOriginal}$ (Precio_Oferta=${ap.Precio_Oferta})`);
           }
           if(ap.Etiqueta_Oferta && ap.Etiqueta_Oferta !== '◆'){
             prod.etiquetaOferta = ap.Etiqueta_Oferta;
