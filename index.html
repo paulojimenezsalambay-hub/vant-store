@@ -65,18 +65,15 @@
 }
 </script>
 
-<!-- Content Security Policy: defensa en profundidad
-     PRODUCCIÓN: reemplazar http://localhost:5680 por la URL real de n8n en la nube,
-     p.ej. https://api.vantstore.ec
-     En Cloudflare Pages añadir la cabecera CSP en _headers en lugar de esta meta tag
-     para mayor fiabilidad. -->
+<!-- CSP de respaldo — la CSP definitiva la aplica Cloudflare vía _headers (más fiable).
+     En desarrollo local esta meta tag permite localhost:5680 para test-server. -->
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' http://localhost:5680 https://api.vantstore.ec;
+  connect-src 'self' http://localhost:5680 https://vantperfumeria.app.n8n.cloud;
   frame-src https://airtable.com;
   form-action 'self';
   frame-ancestors 'none';
@@ -1469,8 +1466,10 @@ body.shop-locked { overflow: hidden; }
 }
 .shop-search-icon {
   position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
-  color: var(--bone-soft); font-size: 14px; pointer-events: none;
+  color: var(--bone-soft); font-size: 14px; pointer-events: auto; cursor: pointer;
+  transition: color .2s;
 }
+.shop-search-icon:hover { color: var(--gold); }
 .shop-search {
   width: 100%;
   background: rgba(255,255,255,.04);
@@ -2306,7 +2305,7 @@ img { max-width: 100%; height: auto; }
     </div>
     <div class="hero-product hero-product--static reveal">
       <img
-        src="assets/cambio estetica foto 2 .png"
+        src="assets/hero-sauvage.png"
         alt="Fragancia premium VANT Store"
         class="hero-static-img"
       />
@@ -3197,42 +3196,19 @@ function bindBottleImages(){
 }
 
 function waLink(p){
-  /* Formato estructurado para que el bot n8n pueda parsearlo fácilmente.
-     Campos en líneas separadas con etiqueta fija: "Clave: Valor" */
   const precio = p.precioOld
     ? `$${p.precio} (antes $${p.precioOld})`
     : `$${p.precio}`;
 
-  const pedidoJson = JSON.stringify({
-    origen:   'directo',
-    items: [{
-      id:       p.slug,
-      nombre:   p.nombre,
-      marca:    p.marca,
-      tipo:     p.tipo,
-      ml:       p.ml,
-      precio:   p.precio,
-      cantidad: 1,
-      subtotal: p.precio
-    }],
-    total: p.precio
-  });
-
   const msg = [
-    '🛍️ PEDIDO VANT STORE',
+    'Buenas! Quisiera comprar en Vant Store 🌟',
     '',
-    `Producto: ${p.nombre}`,
-    `Marca: ${p.marca}`,
-    `Precio: ${precio}`,
-    `Tipo: ${p.tipo}`,
-    `Tamaño: ${p.ml}`,
-    `Género: ${p.genero}`,
+    `✨ ${p.nombre}`,
+    `   Marca: ${p.marca}`,
+    `   Tamaño: ${p.ml}`,
+    `   Precio: ${precio}`,
     '',
-    '--- DATOS_PEDIDO_JSON ---',
-    pedidoJson,
-    '--- FIN_DATOS ---',
-    '',
-    'Por favor, indícame los datos de pago para finalizar mi pedido.'
+    '¿Me puedes enviar los datos bancarios para coordinar el pago y la entrega? 🙌'
   ].join('\n');
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
@@ -3421,20 +3397,15 @@ function buildCartMessage(){
 
   /* Bloque legible para el usuario */
   const lineas = [
-    '🛍️ PEDIDO VANT STORE',
+    'Buenas! Quisiera comprar en Vant Store 🌟',
     '',
     ...items.map(i =>
-      `• ${i.marca} — ${i.nombre} (${i.ml})\n  × ${i.cantidad} = ${i.subtotal} $`
+      `✨ ${i.nombre}\n   Marca: ${i.marca} | Tamaño: ${i.ml}${i.cantidad > 1 ? ` | Cantidad: ${i.cantidad}` : ''}\n   Precio: $${i.subtotal}`
     ),
     '',
-    `TOTAL: ${total} $`,
+    `💰 Total: $${total}`,
     '',
-    /* JSON plano para que n8n pueda parsear el pedido automáticamente */
-    '--- DATOS_PEDIDO_JSON ---',
-    JSON.stringify({ origen: 'carrito', items, total }),
-    '--- FIN_DATOS ---',
-    '',
-    '¿Podéis confirmarme disponibilidad y forma de envío? ¡Gracias!'
+    '¿Me puedes enviar los datos bancarios para coordinar el pago y la entrega? 🙌'
   ];
   return lineas.join('\n');
 }
@@ -3597,13 +3568,10 @@ renderTiles();
 /* ============================================================
    OFERTAS DESTACADAS (landing) — selección aleatoria
    ============================================================ */
-const productosOferta = products.filter(p => p.oferta);
-
 function renderizarOfertasAleatorias(){
   const grid = document.getElementById('ofertasGrid');
   if(!grid) return;
-  /* Mezclar aleatoriamente y tomar 4 */
-  const seleccion = [...productosOferta]
+  const seleccion = products.filter(p => p.oferta)
     .sort(() => Math.random() - 0.5)
     .slice(0, 4);
   grid.innerHTML = seleccion.map(cardHTML).join('');
@@ -4319,6 +4287,10 @@ function closeSearch(){
   searchResults.innerHTML = '<div class="search-empty">Empieza a escribir para encontrar tu fragancia</div>';
 }
 document.getElementById('searchBtn').addEventListener('click', openSearch);
+/* Lupa del shop overlay también abre el buscador completo */
+document.querySelectorAll('.shop-search-icon').forEach(el =>
+  el.addEventListener('click', openSearch)
+);
 searchClose.addEventListener('click', closeSearch);
 searchOverlay.addEventListener('click', e => { if(e.target === searchOverlay) closeSearch(); });
 document.addEventListener('keydown', e => {
@@ -4432,7 +4404,7 @@ function closeImgEditor(){}
    ============================================================ */
 const IS_DEV = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-const PROD_API_BASE = 'https://api.vantstore.ec';       // ← tu Worker / proxy n8n
+const PROD_API_BASE = 'https://vantperfumeria.app.n8n.cloud/webhook';
 const DEV_API_BASE  = 'http://localhost:5680/webhook-test';
 
 const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
@@ -4449,19 +4421,38 @@ function _normName(s){
 const _nombreToSlug = {};
 for(const p of products) _nombreToSlug[_normName(p.nombre)] = p.slug;
 
+/* Matching inteligente: exacto primero, luego busca si el nombre del código
+   está contenido en el nombre largo de Airtable (ej: "Sauvage" dentro de
+   "CHRISTIAN DIOR SAUVAGE EDP 100ML"). Prefiere la coincidencia más larga. */
+function _findSlug(nombreAirtable){
+  const normAT = _normName(nombreAirtable);
+  if(_nombreToSlug[normAT]) return _nombreToSlug[normAT];
+  let bestSlug = null, bestLen = 0;
+  for(const [normCode, slug] of Object.entries(_nombreToSlug)){
+    if(normAT.includes(normCode) && normCode.length > bestLen){
+      bestSlug = slug;
+      bestLen  = normCode.length;
+    }
+  }
+  return bestSlug;
+}
+
 async function syncAirtableImages(){
   try {
-    const res = await fetch(WH_GET_DATOS);
+    const res = await fetch(WH_GET_DATOS + '?t=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) return;
     const data = await res.json();
     const newSlugs = [];
     let datosActualizados = false;
 
+    /* Airtable es la fuente de verdad para ofertas — resetear todas primero */
+    products.forEach(p => { p.oferta = false; p.precioOld = null; });
+
     for(const ap of Object.values(data)){
-      const slug = _nombreToSlug[_normName(ap.Nombre)];
+      const slug = _findSlug(ap.Nombre);
       if(!slug) continue;
 
-      /* ── Sincronizar Es_Top y Ventas_Totales desde Airtable ── */
+      /* ── Sincronizar datos desde Airtable ── */
       const prod = products.find(p => p.slug === slug);
       if(prod){
         if(ap.Es_Top !== undefined){
@@ -4472,6 +4463,26 @@ async function syncAirtableImages(){
           prod.orden = Number(ap.Ventas_Totales) || prod.orden;
           datosActualizados = true;
         }
+
+        /* ── Sincronizar precios y ofertas desde Airtable ── */
+        const precioOriginal = Number(ap.Precio_Original);
+        const precioOferta   = Number(ap.Precio_Oferta);
+        const enOferta       = Boolean(ap.En_Oferta);
+        if(precioOriginal > 0){
+          prod.oferta = enOferta;
+          if(enOferta && precioOferta > 0 && precioOferta < precioOriginal){
+            prod.precio    = precioOferta;
+            prod.precioOld = precioOriginal;
+          } else {
+            prod.precio    = precioOriginal;
+            prod.precioOld = null;
+          }
+          if(ap.Etiqueta_Oferta && ap.Etiqueta_Oferta !== '◆'){
+            prod.etiquetaOferta = ap.Etiqueta_Oferta;
+          }
+          datosActualizados = true;
+        }
+
         /* Actualizar data-es-top en cards ya renderizadas */
         document.querySelectorAll(`.card[data-slug="${CSS.escape(slug)}"]`).forEach(card => {
           card.dataset.esTop = prod.bestseller ? 'true' : 'false';
@@ -4488,8 +4499,9 @@ async function syncAirtableImages(){
       newSlugs.push(slug);
     }
 
-    /* Refrescar catálogo si el shop está abierto y hubo cambios en Es_Top */
+    /* Refrescar catálogo y ofertas si hubo cambios de datos */
     if(datosActualizados){
+      renderizarOfertasAleatorias();
       const shopEl = document.getElementById('shop');
       if(shopEl?.classList.contains('open')) applyFilters();
     }
@@ -4686,8 +4698,9 @@ const io = new IntersectionObserver(entries=>{
 },{ threshold:.08, rootMargin:'0px 0px -40px 0px' });
 document.querySelectorAll('.reveal, .stagger').forEach(el=>io.observe(el));
 
-/* Sincronizar imágenes desde Airtable al arrancar */
+/* Sincronizar datos desde Airtable al arrancar y cada 5 minutos */
 syncAirtableImages();
+setInterval(syncAirtableImages, 5 * 60 * 1000);
 </script>
 
 </body>
