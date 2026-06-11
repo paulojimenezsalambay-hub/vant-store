@@ -1,16 +1,30 @@
-.DS_Store
-Thumbs.db
-*.tmp
-*.log
-.claude/
-
-# Build
-dist/
+# Dependencias
 node_modules/
 
-# Credenciales — nunca en git
-CREDENCIALES.txt
-
-# Logs del servidor de pruebas
+# Archivos de desarrollo local
+test-server.js
 test-emails.json
 test-whatsapps.json
+CREDENCIALES.txt
+
+# Flujos n8n (internos)
+n8n_workflows/
+
+# Carpeta de Claude Code
+.claude/
+
+# Frontend Next.js (no se usa en producción)
+frontend/
+
+# Capturas y assets de desarrollo
+assets/ChatGPT*
+assets/Gemini*
+assets/final_*
+assets/mob2_*
+assets/mobile_*
+assets/hero_*
+assets/btn_*
+assets/tiles_*
+
+# Base de datos local
+*.sqlite

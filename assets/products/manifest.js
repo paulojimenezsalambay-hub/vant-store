@@ -31,7 +31,7 @@ window.PRODUCT_IMAGES = {
   'lady-million':         ['Gemini_Generated_Image_6o3ib26o3ib26o3i.png'],
   'olympea':              ['Gemini_Generated_Image_vq1dbxvq1dbxvq1d.png'],
   'si':                   ['Gemini_Generated_Image_602s4w602s4w602s.png'],
-  'y-edp':                ['Gemini_Generated_Image_9eol4d9eol4d9eol.png'],
+  'y-edp':                ['y-edp.png'],
 
   /* ── Fotos reales (nombres estándar — auto-detectables) ──────────── */
   'sauvage-edt':          ['sauvage-edt.png'],
@@ -40,7 +40,7 @@ window.PRODUCT_IMAGES = {
   'invictus':             ['invictus.png'],
   'phantom':              ['phantom.png'],
   'libre':                ['libre.png'],
-  'idole':                ['Idole.png'],
+  'idole':                ['idole.png'],
   '212-vip-men':          ['212-vip-men.png'],
   '1-million':            ['product.png'],
 

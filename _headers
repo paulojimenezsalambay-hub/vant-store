@@ -1,20 +1,25 @@
 /*
-  # Seguridad básica — se aplica a todas las rutas
+  Seguridad global — aplica a todas las rutas
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   X-XSS-Protection: 1; mode=block
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://vantperfumeria.app.n8n.cloud; frame-src https://airtable.com; form-action 'self'; frame-ancestors 'none'; base-uri 'self';
 
-  # CSP — producción (más estricta que la meta tag de dev)
-  # Ajusta connect-src con la URL real de tu n8n en la nube
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://wa.me https://api.vantstore.ec; form-action 'self' https://wa.me; frame-ancestors 'none'; base-uri 'self';
-
-# Caché agresiva para assets estáticos (imágenes de producto)
+# Assets estáticos — caché agresiva 1 año
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Sin caché para el HTML principal (para que los cambios lleguen al instante)
+# JS y CSS compilados — caché agresiva 1 año
+/dist/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML principal — sin caché para que los cambios lleguen al instante
 /index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Manifiesto de productos — sin caché
+/assets/products/manifest.js
   Cache-Control: no-cache, no-store, must-revalidate
