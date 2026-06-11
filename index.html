@@ -4442,6 +4442,10 @@ async function syncAirtableImages(){
     const res = await fetch(WH_GET_DATOS + '?t=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) return;
     const data = await res.json();
+    /* DEBUG TEMPORAL — abre DevTools → Console para ver qué devuelve n8n */
+    const primerItem = Object.values(data)[0];
+    console.log('[VantSync] Campos recibidos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
+    console.log('[VantSync] Primer registro:', primerItem);
     const newSlugs = [];
     let datosActualizados = false;
 
