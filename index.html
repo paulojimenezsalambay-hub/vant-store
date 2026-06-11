@@ -4421,6 +4421,18 @@ function _normName(s){
 const _nombreToSlug = {};
 for(const p of products) _nombreToSlug[_normName(p.nombre)] = p.slug;
 
+/* Aliases para nombres de Airtable que no hacen substring match con el nombre corto del código */
+Object.assign(_nombreToSlug, {
+  'club de nuit intense edp':     'club-de-nuit-intense',
+  'club de nuit intense edt':     'armaf-cdni-edt',
+  'odyssey mandarin sky limited': 'armaf-mandarin-sky',
+  'vulcan feu':                   'french-avenue-vulcan',
+  'born in roma intense':         'valentino-born-roma-m',
+  'fakhar black':                 'lattafa-fakhar',
+  'laurent y edp':                'y-edp',
+  'one million':                  '1-million',
+});
+
 /* Matching inteligente: exacto primero, luego busca si el nombre del código
    está contenido en el nombre largo de Airtable (ej: "Sauvage" dentro de
    "CHRISTIAN DIOR SAUVAGE EDP 100ML"). Prefiere la coincidencia más larga. */
@@ -4473,8 +4485,15 @@ async function syncAirtableImages(){
 
         /* ── Sincronizar precios y ofertas desde Airtable ── */
         const precioOriginal = Number(ap.Precio_Original);
-        const precioOferta   = Number(ap.Precio_Oferta);
+        let   precioOferta   = Number(ap.Precio_Oferta);
         const enOferta       = Boolean(ap.En_Oferta);
+
+        /* Si En_Oferta y no hay Precio_Oferta explícito, calcular desde Etiqueta_Oferta "-XX%" */
+        if(enOferta && !(precioOferta > 0 && precioOferta < precioOriginal) && ap.Etiqueta_Oferta){
+          const m = String(ap.Etiqueta_Oferta).match(/^-(\d{1,2})%$/);
+          if(m) precioOferta = Math.round(precioOriginal * (1 - Number(m[1]) / 100) * 10) / 10;
+        }
+
         if(precioOriginal > 0){
           prod.oferta = enOferta;
           if(enOferta && precioOferta > 0 && precioOferta < precioOriginal){
@@ -4484,7 +4503,7 @@ async function syncAirtableImages(){
           } else {
             prod.precio    = precioOriginal;
             prod.precioOld = null;
-            if(enOferta) console.log(`[VantSync] OFERTA sin precio rebajado: ${slug} → ${precioOriginal}$ (Precio_Oferta=${ap.Precio_Oferta})`);
+            if(enOferta) console.log(`[VantSync] OFERTA sin descuento: ${slug} → ${precioOriginal}$`);
           }
           if(ap.Etiqueta_Oferta && ap.Etiqueta_Oferta !== '◆'){
             prod.etiquetaOferta = ap.Etiqueta_Oferta;
