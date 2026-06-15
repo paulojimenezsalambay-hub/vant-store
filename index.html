@@ -4527,8 +4527,16 @@ function _findSlug(nombreAirtable){
 async function syncAirtableImages(){
   try {
     const res = await fetch(WH_GET_DATOS + '?t=' + Date.now(), { cache: 'no-store' });
-    if(!res.ok) return;
-    const data = await res.json();
+    if(!res.ok){ console.error('[VantSync] HTTP error:', res.status, res.statusText); return; }
+    const rawText = await res.text();
+    console.log('[VantSync] Respuesta cruda de n8n (primeros 200 chars):', rawText.slice(0, 200));
+    if(!rawText || rawText.trim() === ''){
+      console.error('[VantSync] n8n devolvió respuesta vacía — revisar nodo "Respond to Webhook"');
+      return;
+    }
+    let data;
+    try { data = JSON.parse(rawText); }
+    catch(e){ console.error('[VantSync] JSON inválido de n8n:', e.message, '| Raw:', rawText.slice(0,300)); return; }
     const registros = Object.values(data);
     const primerItem = registros[0];
     console.log('[VantSync] Campos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
