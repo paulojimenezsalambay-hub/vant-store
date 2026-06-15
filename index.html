@@ -3089,6 +3089,11 @@ const airtableImages = {};
 
 /* Cache de URLs que ya sabemos que funcionan — evita parpadeo del SVG */
 const KNOWN_URLS_KEY = 'vant_known_urls';
+const CACHE_VERSION  = '20260615';
+if(localStorage.getItem('vant_cache_v') !== CACHE_VERSION){
+  localStorage.removeItem(KNOWN_URLS_KEY);
+  localStorage.setItem('vant_cache_v', CACHE_VERSION);
+}
 let lastWorkingUrl = loadURLMapSafe(KNOWN_URLS_KEY);
 const knownImageSlugs = new Set(Object.keys(lastWorkingUrl));
 Object.keys(overrides).forEach(s => knownImageSlugs.add(s));

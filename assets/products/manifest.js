@@ -31,8 +31,6 @@ window.PRODUCT_IMAGES = {
   'lady-million':         ['Gemini_Generated_Image_6o3ib26o3ib26o3i.png'],
   'olympea':              ['Gemini_Generated_Image_vq1dbxvq1dbxvq1d.png'],
   'si':                   ['Gemini_Generated_Image_602s4w602s4w602s.png'],
-  'y-edp':                ['y-edp.png'],
-
   /* ── Fotos reales (nombres estándar — auto-detectables) ──────────── */
   'sauvage-edt':          ['sauvage-edt.png'],
   'bottled':              ['bottled.png'],
