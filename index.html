@@ -3158,8 +3158,8 @@ function bindBottleImages(){
     const product = products.find(p => p.slug === slug);
     if(!product) return;
 
-    /* Si ya tiene src Y la imagen ya cargó (naturalWidth>0), salimos */
-    if(img.getAttribute('src') && img.naturalWidth > 0){
+    /* Si ya tiene src (bottleHTML lo puso porque conocíamos la URL), salimos */
+    if(img.getAttribute('src')){
       host.classList.add('has-image');
       img.style.opacity = '1';
       return;
@@ -4540,7 +4540,7 @@ async function syncAirtableImages(){
     products.forEach(p => { p.oferta = false; p.precioOld = null; });
 
     for(const ap of Object.values(data)){
-      const slug = _findSlug(ap.Nombre);
+      let slug = _findSlug(ap.Nombre);
       if(!slug){
         const precioNuevo = Number(ap.Precio_Original);
         if(!precioNuevo || !ap.Nombre?.trim()) continue;
