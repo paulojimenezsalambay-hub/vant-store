@@ -4619,14 +4619,36 @@ async function syncAirtableImages(){
     if(!newSlugs.length) return;
     newSlugs.forEach(slug => {
       delete lastWorkingUrl[slug];
+      const url = airtableImages[slug];
+      if(!url) return;
       const host = document.querySelector(`.bottle-host[data-slug="${CSS.escape(slug)}"]`);
       if(!host) return;
       const img = host.querySelector('img.prod-img');
-      if(img){ img.removeAttribute('src'); img.style.opacity = '0'; }
+      if(!img) return;
+      /* Cancelar cualquier onerror chain pendiente antes de imponer la URL de Airtable */
+      img.onerror = null;
+      img.onload  = null;
+      img.removeAttribute('src');
+      img.style.display  = '';
+      img.style.opacity  = '0';
       host.classList.remove('has-image');
+      img.onload = () => {
+        img.style.opacity = '1';
+        host.classList.add('has-image');
+        lastWorkingUrl[slug] = url;
+        knownImageSlugs.add(slug);
+        try { localStorage.setItem(KNOWN_URLS_KEY, JSON.stringify(lastWorkingUrl)); } catch(_){}
+      };
+      img.onerror = () => {
+        img.removeAttribute('src');
+        img.style.opacity = '0';
+        img.style.display = 'none';
+      };
+      img.src = url;
     });
+    /* bindBottleImages para cualquier producto no cubierto arriba */
     bindBottleImages();
-  } catch(_){}
+  } catch(e){ console.error('[VantSync] Error en sync:', e); }
 }
 
 
