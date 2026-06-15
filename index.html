@@ -3089,7 +3089,7 @@ const airtableImages = {};
 
 /* Cache de URLs que ya sabemos que funcionan — evita parpadeo del SVG */
 const KNOWN_URLS_KEY = 'vant_known_urls';
-const CACHE_VERSION  = '20260615';
+const CACHE_VERSION  = '20260616';
 if(localStorage.getItem('vant_cache_v') !== CACHE_VERSION){
   localStorage.removeItem(KNOWN_URLS_KEY);
   localStorage.setItem('vant_cache_v', CACHE_VERSION);
@@ -3179,16 +3179,16 @@ function bindBottleImages(){
       img.style.opacity = '1';
       host.classList.add('has-image');
       const winningUrl = urls[idx];
-      /* Cachear solo URLs no-data (las data URL ya están en overrides) */
-      if(winningUrl && !winningUrl.startsWith('data:')){
+      /* Cachear solo rutas locales relativas — las URLs de Airtable/http caducan en ~2h
+         y no deben persistirse en localStorage */
+      if(winningUrl && !winningUrl.startsWith('data:') && !winningUrl.startsWith('http')){
         if(lastWorkingUrl[slug] !== winningUrl){
           lastWorkingUrl[slug] = winningUrl;
           knownImageSlugs.add(slug);
           try { localStorage.setItem(KNOWN_URLS_KEY, JSON.stringify(lastWorkingUrl)); } catch(_) {}
         }
-      } else if(winningUrl){
-        knownImageSlugs.add(slug);
       }
+      knownImageSlugs.add(slug);
     };
     img.onerror = () => {
       idx++;
@@ -4529,10 +4529,10 @@ async function syncAirtableImages(){
     const res = await fetch(WH_GET_DATOS + '?t=' + Date.now(), { cache: 'no-store' });
     if(!res.ok) return;
     const data = await res.json();
-    /* DEBUG TEMPORAL */
-    const primerItem = Object.values(data)[0];
-    console.log('[VantSync] Campos recibidos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
-    console.log('[VantSync] Total registros recibidos:', Object.values(data).length);
+    const registros = Object.values(data);
+    const primerItem = registros[0];
+    console.log('[VantSync] Campos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
+    console.log(`[VantSync] Registros recibidos: ${registros.length}`);
     const newSlugs = [];
     let datosActualizados = false;
 
@@ -4616,6 +4616,7 @@ async function syncAirtableImages(){
       if(shopEl?.classList.contains('open')) applyFilters();
     }
 
+    console.log(`[VantSync] Con foto Airtable: ${newSlugs.length} | Auto-creados: ${products.filter(p=>p.orden===999).length}`);
     if(!newSlugs.length) return;
     newSlugs.forEach(slug => {
       delete lastWorkingUrl[slug];
