@@ -4533,6 +4533,14 @@ async function syncAirtableImages(){
     const primerItem = registros[0];
     console.log('[VantSync] Campos de n8n:', primerItem ? Object.keys(primerItem) : 'VACÍO');
     console.log(`[VantSync] Registros recibidos: ${registros.length}`);
+    /* DEBUG FOTO: mostrar el campo Foto del primer registro que lo tenga */
+    const conFoto = registros.find(r => r.Foto);
+    if(conFoto){
+      console.log('[VantSync] Ejemplo Foto (tipo):', typeof conFoto.Foto, '| Array?', Array.isArray(conFoto.Foto));
+      console.log('[VantSync] Foto[0]:', JSON.stringify(conFoto.Foto?.[0] || conFoto.Foto).slice(0,300));
+    } else {
+      console.warn('[VantSync] ⚠️ NINGÚN registro tiene campo Foto — revisar n8n');
+    }
     const newSlugs = [];
     let datosActualizados = false;
 
