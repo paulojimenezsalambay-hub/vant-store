@@ -4417,6 +4417,72 @@ function _normName(s){
     .normalize('NFD').replace(/[̀-ͯ]/g,'');
 }
 
+/* Marcas conocidas ordenadas de más larga a más corta para detectar al inicio del nombre */
+const _MARCAS_CONOCIDAS = [
+  'YVES SAINT LAURENT','CAROLINA HERRERA','GIORGIO ARMANI','CHRISTIAN DIOR',
+  'PACO RABANNE','HUGO BOSS','RALPH LAUREN','AL HARAMAIN','FRAGRANCE WORLD',
+  'ELIE SAAB','DOLCE GABBANA','JEAN PAUL GAULTIER','TOM FORD',
+  'ARMAF','LATTAFA','AFNAN','RASASI','ALHAMBRA','VERSACE','CHANEL',
+  'LANCOME','GIVENCHY','BURBERRY','MONTBLANC','DAVIDOFF','CARTIER',
+  'DIOR','YSL','PRADA','GUCCI','HERMES','BVLGARI','VALENTINO','ULRIC DE VARENS',
+].sort((a,b) => b.length - a.length);
+
+/* Parsea un nombre largo de Airtable y extrae tipo, ml, genero, marca y nombre corto */
+function _parsarProductoAirtable(ap){
+  const raw  = String(ap.Nombre || '').trim();
+  const up   = raw.toUpperCase();
+
+  // Tipo
+  let tipo = 'Eau de Parfum';
+  if(/EXTRAIT\s+DE\s+PARFUM/.test(up))          tipo = 'Extrait de Parfum';
+  else if(/EAU\s+DE\s+TOILETTE|\bEDT\b/.test(up)) tipo = 'Eau de Toilette';
+  else if(/EAU\s+DE\s+PARFUM|\bEDP\b/.test(up))   tipo = 'Eau de Parfum';
+
+  // ML
+  const mlM = up.match(/(\d+)\s*ML/);
+  const ml  = mlM ? mlM[1] + ' ml' : '100 ml';
+
+  // Género
+  let genero = 'Unisex';
+  if(/PARA\s+HOMBRE|POUR\s+HOMME/.test(up))   genero = 'Hombre';
+  else if(/PARA\s+MUJER|POUR\s+FEMME/.test(up)) genero = 'Mujer';
+
+  // Marca
+  let marca = raw.split(/\s+/)[0];
+  for(const m of _MARCAS_CONOCIDAS){
+    if(up.startsWith(m + ' ')){
+      marca = m.charAt(0) + m.slice(1).toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      break;
+    }
+  }
+
+  // Nombre corto: quitar marca, tipo, ml, género, "(DUPE...)"
+  let corto = raw
+    .replace(/\s*\([^)]*(?:DUPE|INSPIRED)[^)]*\)/gi, '')
+    .replace(/\s+(?:PARA\s+(?:HOMBRE|MUJER)|POUR\s+(?:HOMME|FEMME)|UNISEX)\b/gi, '')
+    .replace(/\s+\d+\s*ML\b/gi, '')
+    .replace(/\s+(?:EXTRAIT\s+DE\s+PARFUM|EAU\s+DE\s+PARFUM|EAU\s+DE\s+TOILETTE|EDP|EDT)\b/gi, '')
+    .trim();
+  if(corto.toUpperCase().startsWith(marca.toUpperCase() + ' '))
+    corto = corto.slice(marca.length).trim();
+
+  return {
+    slug:    String(ap.ID_Producto || '').trim() || 'auto-' + _normName(raw).replace(/\s+/g,'-').slice(0,25),
+    nombre:  corto || raw,
+    marca,
+    tipo,
+    familia: 'Oriental',
+    ml,
+    genero,
+    precio:  Number(ap.Precio_Original) || 0,
+    precioOld: null,
+    bestseller: false,
+    nuevo:   true,
+    oferta:  Boolean(ap.En_Oferta),
+    orden:   999,
+  };
+}
+
 /* Mapa nombre-normalizado → slug para matching con Airtable */
 const _nombreToSlug = {};
 for(const p of products) _nombreToSlug[_normName(p.nombre)] = p.slug;
@@ -4431,6 +4497,7 @@ Object.assign(_nombreToSlug, {
   'fakhar black':                 'lattafa-fakhar',
   'laurent y edp':                'y-edp',
   'one million':                  '1-million',
+  'eros 100ml edp':               'versace-eros-edp',
 });
 
 /* Matching inteligente: exacto primero, luego busca si el nombre del código
@@ -4467,8 +4534,15 @@ async function syncAirtableImages(){
     for(const ap of Object.values(data)){
       const slug = _findSlug(ap.Nombre);
       if(!slug){
-        console.warn('[VantSync] Sin match:', ap.Nombre?.trim());
-        continue;
+        const precioNuevo = Number(ap.Precio_Original);
+        if(!precioNuevo || !ap.Nombre?.trim()) continue;
+        const nuevo = _parsarProductoAirtable(ap);
+        if(products.find(p => p.slug === nuevo.slug)) continue;
+        products.push(nuevo);
+        _nombreToSlug[_normName(ap.Nombre)] = nuevo.slug;
+        slug = nuevo.slug;
+        datosActualizados = true;
+        console.log(`[VantSync] Producto nuevo auto-creado: ${nuevo.slug} — ${nuevo.nombre}`);
       }
 
       /* ── Sincronizar datos desde Airtable ── */
