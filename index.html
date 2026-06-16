@@ -3734,7 +3734,7 @@ function applyFilters(){
     if(state.priceMax!==null && p.precio > state.priceMax) return false;
     if(ql && !p.nombre.toLowerCase().includes(ql) && !p.marca.toLowerCase().includes(ql) &&
        !p.familia.toLowerCase().includes(ql) && !p.tipo.toLowerCase().includes(ql) &&
-       !p.notas.some(n=>n.toLowerCase().includes(ql))) return false;
+       !(p.notas||[]).some(n=>n.toLowerCase().includes(ql))) return false;
     return true;
   });
   if(state.sort==='precio-asc')  currentList.sort((a,b)=>a.precio-b.precio);
@@ -4340,7 +4340,7 @@ function runSearch(q){
     _normSearch(p.marca).includes(ql)  ||
     _normSearch(p.familia).includes(ql)||
     _normSearch(p.tipo).includes(ql)   ||
-    p.notas.some(n => _normSearch(n).includes(ql))
+    (p.notas||[]).some(n => _normSearch(n).includes(ql))
   ).slice(0, 12);
   if(list.length === 0){
     searchResults.innerHTML = `<div class="search-empty">No se encontraron fragancias con ese nombre 🔍<br><small style="opacity:.6">Prueba con la marca o una nota olfativa</small></div>`;
@@ -4499,6 +4499,8 @@ function _parsarProductoAirtable(ap){
     nuevo:   true,
     oferta:  Boolean(ap.En_Oferta),
     orden:   999,
+    notas:   [],
+    copy:    '',
   };
 }
 
