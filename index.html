@@ -73,7 +73,7 @@
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
   img-src 'self' data: https:;
-  connect-src 'self' http://localhost:5680 https://vantperfumeria.app.n8n.cloud;
+  connect-src 'self' https://vant-productos.paulojimenezsalambay.workers.dev https://dl.airtable.com https://v5.airtableusercontent.com;
   frame-src https://airtable.com;
   form-action 'self';
   frame-ancestors 'none';
@@ -4412,12 +4412,8 @@ function closeImgEditor(){}
    ============================================================ */
 const IS_DEV = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-const PROD_API_BASE = 'https://vantperfumeria.app.n8n.cloud/webhook';
-const DEV_API_BASE  = 'http://localhost:5680/webhook-test';
-
-const API_BASE_URL = IS_DEV ? DEV_API_BASE : PROD_API_BASE;
-
-const WH_GET_DATOS = `${API_BASE_URL}/obtener-ofertas`;
+/* Cloudflare Worker — reemplaza n8n */
+const WH_GET_DATOS = 'https://vant-productos.paulojimenezsalambay.workers.dev';
 
 /* Normaliza un nombre quitando tildes/diacríticos para comparar */
 function _normName(s){
