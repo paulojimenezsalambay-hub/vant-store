@@ -4512,7 +4512,7 @@ function _findSlug(nombreAirtable){
   if(_nombreToSlug[normAT]) return _nombreToSlug[normAT];
   let bestSlug = null, bestLen = 0;
   for(const [normCode, slug] of Object.entries(_nombreToSlug)){
-    if(normAT.includes(normCode) && normCode.length > bestLen){
+    if(normCode.length >= 4 && normAT.includes(normCode) && normCode.length > bestLen){
       bestSlug = slug;
       bestLen  = normCode.length;
     }
