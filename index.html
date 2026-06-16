@@ -2948,7 +2948,16 @@ const products = [
     copy:'El dios del amor en su versión más intensa. EDP oscuro y magnético.' },
   { slug:'elie-saab-lhomme-intense', nombre:"L'Homme Intense EDP", marca:'Elie Saab', tipo:'Eau de Parfum', familia:'Oriental', ml:'90 ml', genero:'Hombre', precio:46, precioOld:93, bestseller:false, nuevo:false, oferta:true, orden:98,
     notas:['Cardamomo','Violeta','Benjuí','Cedro','Almizcle'],
-    copy:'El hombre intenso de Elie Saab. Oriental elegante con un corazón de violeta único.' }
+    copy:'El hombre intenso de Elie Saab. Oriental elegante con un corazón de violeta único.' },
+  { slug:'paco-invictus-victory', nombre:'Invictus Victory Elixir', marca:'Paco Rabanne', tipo:'Parfum Intense', familia:'Acuático', ml:'100 ml', genero:'Hombre', precio:141.9, precioOld:null, bestseller:false, nuevo:true, oferta:false, orden:99,
+    notas:['Menta','Jengibre','Pomelo','Ambroxan','Madera'],
+    copy:'El trofeo definitivo. Fresco y animal a la vez, Invictus en su versión más intensa y duradera.' },
+  { slug:'paco-1m-prive', nombre:'1 Million Privé', marca:'Paco Rabanne', tipo:'Parfum', familia:'Oriental', ml:'100 ml', genero:'Hombre', precio:163.9, precioOld:null, bestseller:false, nuevo:true, oferta:false, orden:100,
+    notas:['Bergamota','Canela','Mirra','Oud','Pachulí'],
+    copy:'El millón en versión oscura y adictiva. Oriental puro para quien no necesita disculpas.' },
+  { slug:'lattafa-fakhar-w', nombre:'Fakhar EDP (Mujer)', marca:'Lattafa', tipo:'Eau de Parfum', familia:'Floral', ml:'100 ml', genero:'Mujer', precio:62.7, precioOld:null, bestseller:false, nuevo:true, oferta:false, orden:101,
+    notas:['Bergamota','Rosa','Jazmín','Sándalo','Almizcle'],
+    copy:'El orgullo en versión femenina. Floral y oriental con una profundidad que perdura.' }
 ];
 
 /* ============================================================
@@ -4502,6 +4511,10 @@ Object.assign(_nombreToSlug, {
   'laurent y edp':                'y-edp',
   'one million':                  '1-million',
   'eros 100ml edp':               'versace-eros-edp',
+  /* Aliases para variantes con nombre largo que deben ganar al substring corto */
+  'invictus victory elixir':      'paco-invictus-victory',
+  'one million prive':            'paco-1m-prive',
+  'pride fakhar edp':             'lattafa-fakhar-w',
 });
 
 /* Matching inteligente: exacto primero, luego busca si el nombre del código
