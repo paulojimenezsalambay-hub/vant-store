@@ -4487,7 +4487,7 @@ function _parsarProductoAirtable(ap){
 
   return {
     slug:    String(ap.ID_Producto || '').trim() || 'auto-' + _normName(raw).replace(/\s+/g,'-').slice(0,25),
-    nombre:  corto || raw,
+    nombre:  (corto && corto.toUpperCase() !== marca.toUpperCase()) ? corto : raw,
     marca,
     tipo,
     familia: 'Oriental',
@@ -4529,7 +4529,10 @@ Object.assign(_nombreToSlug, {
    está contenido en el nombre largo de Airtable (ej: "Sauvage" dentro de
    "CHRISTIAN DIOR SAUVAGE EDP 100ML"). Prefiere la coincidencia más larga. */
 function _findSlug(nombreAirtable){
-  const normAT = _normName(nombreAirtable);
+  /* Eliminar "(DUPE ...)" y "(INSPIRED BY ...)" antes de buscar — evita falsos
+     matches cuando el nombre del producto que inspira aparece en el texto */
+  const cleaned = String(nombreAirtable||'').replace(/\s*\([^)]*(?:DUPE|INSPIRED)[^)]*\)/gi,'').trim();
+  const normAT = _normName(cleaned);
   if(_nombreToSlug[normAT]) return _nombreToSlug[normAT];
   let bestSlug = null, bestLen = 0;
   for(const [normCode, slug] of Object.entries(_nombreToSlug)){
