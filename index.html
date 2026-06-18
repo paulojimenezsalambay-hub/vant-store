@@ -3497,10 +3497,10 @@ function randFrom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 
 function renderTiles(){
   const tilePools = [
-    products.filter(p => p.genero === 'Mujer'),
-    products.filter(p => p.genero === 'Hombre'),
-    products.filter(p => p.bestseller),
-    products.filter(p => p.oferta)
+    products.filter(p => !p.oculto && p.genero === 'Mujer'),
+    products.filter(p => !p.oculto && p.genero === 'Hombre'),
+    products.filter(p => !p.oculto && p.bestseller),
+    products.filter(p => !p.oculto && p.oferta)
   ];
   const tileConfig = [
     { tag: 'Para ella',   label: 'Mujer',       orn: '♀', jump: 'coleccion',   filter: { genero: 'Mujer' }  },
@@ -3537,10 +3537,10 @@ renderTiles();
 /* Rotación dinámica de tiles — cambia el perfume mostrado cada ~3.5 s */
 (function(){
   const tilePools = [
-    products.filter(p => p.genero === 'Mujer'),
-    products.filter(p => p.genero === 'Hombre'),
-    products.filter(p => p.bestseller),
-    products.filter(p => p.oferta)
+    products.filter(p => !p.oculto && p.genero === 'Mujer'),
+    products.filter(p => !p.oculto && p.genero === 'Hombre'),
+    products.filter(p => !p.oculto && p.bestseller),
+    products.filter(p => !p.oculto && p.oferta)
   ];
   /* Mezclamos cada pool para que el orden sea distinto cada visita */
   tilePools.forEach(pool => pool.sort(() => Math.random() - 0.5));
@@ -4720,6 +4720,7 @@ async function syncAirtableImages(){
 
     /* Refrescar catálogo y ofertas */
     renderizarOfertasAleatorias();
+    renderTiles();
     const shopEl = document.getElementById('shop');
     if(shopEl?.classList.contains('open')) applyFilters();
     const qActual = searchInput?.value?.trim();
