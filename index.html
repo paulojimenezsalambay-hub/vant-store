@@ -3588,7 +3588,7 @@ renderTiles();
 function renderizarOfertasAleatorias(){
   const grid = document.getElementById('ofertasGrid');
   if(!grid) return;
-  const seleccion = products.filter(p => p.oferta)
+  const seleccion = products.filter(p => !p.oculto && p.oferta)
     .sort(() => Math.random() - 0.5)
     .slice(0, 4);
   grid.innerHTML = seleccion.map(cardHTML).join('');
@@ -3723,6 +3723,7 @@ function renderActiveChips(){
 function applyFilters(){
   const ql = state.query ? state.query.toLowerCase() : '';
   currentList = products.filter(p=>{
+    if(p.oculto) return false;
     if(state.slug    && p.slug    !== state.slug) return false;
     if(state.genero  && p.genero  !== state.genero) return false;
     if(state.marca   && p.marca   !== state.marca) return false;
@@ -4336,11 +4337,13 @@ function runSearch(q){
   }
   const ql = _normSearch(q);
   const list = products.filter(p =>
-    _normSearch(p.nombre).includes(ql) ||
-    _normSearch(p.marca).includes(ql)  ||
-    _normSearch(p.familia).includes(ql)||
-    _normSearch(p.tipo).includes(ql)   ||
-    (p.notas||[]).some(n => _normSearch(n).includes(ql))
+    !p.oculto && (
+      _normSearch(p.nombre).includes(ql) ||
+      _normSearch(p.marca).includes(ql)  ||
+      _normSearch(p.familia).includes(ql)||
+      _normSearch(p.tipo).includes(ql)   ||
+      (p.notas||[]).some(n => _normSearch(n).includes(ql))
+    )
   ).slice(0, 12);
   if(list.length === 0){
     searchResults.innerHTML = `<div class="search-empty">No se encontraron fragancias con ese nombre 🔍<br><small style="opacity:.6">Prueba con la marca o una nota olfativa</small></div>`;
@@ -4621,27 +4624,34 @@ async function syncAirtableImages(){
     const newSlugs = [];
     let datosActualizados = false;
 
-    /* Airtable es la fuente de verdad para ofertas — resetear todas primero */
-    products.forEach(p => { p.oferta = false; p.precioOld = null; });
+    /* Airtable es la fuente de verdad — resetear ofertas y marcar todos ocultos.
+       Solo se hacen visibles los que tengan nombre + precio + foto en Airtable. */
+    products.forEach(p => { p.oferta = false; p.precioOld = null; p.oculto = true; });
 
     for(const ap of Object.values(data)){
+      /* Pre-calcular los tres campos obligatorios */
+      const precioOriginal = Number(ap.Precio_Original);
+      const fotos    = Array.isArray(ap.Foto) ? ap.Foto : [];
+      const foto     = fotos[0];
+      const fotoUrl  = foto ? ((foto.thumbnails?.large?.url) || foto.url) : null;
+
       let slug = _findSlug(ap.Nombre);
       if(!slug){
-        const precioNuevo = Number(ap.Precio_Original);
-        if(!precioNuevo || !ap.Nombre?.trim()) continue;
+        /* Producto nuevo: requiere nombre + precio + foto para aparecer */
+        if(!precioOriginal || !ap.Nombre?.trim() || !fotoUrl) continue;
         const nuevo = _parsarProductoAirtable(ap);
         if(products.find(p => p.slug === nuevo.slug)) continue;
         products.push(nuevo);
         _nombreToSlug[_normName(ap.Nombre)] = nuevo.slug;
         slug = nuevo.slug;
         datosActualizados = true;
-        console.log(`[VantSync] Producto nuevo auto-creado: ${nuevo.slug} — ${nuevo.nombre}`);
+        console.log(`[VantSync] Producto nuevo: ${nuevo.slug} — ${nuevo.nombre}`);
       }
 
       /* ── Sincronizar datos desde Airtable ── */
       const prod = products.find(p => p.slug === slug);
       if(prod){
-        /* Actualizar familia si el nombre de Airtable tiene DUPE y el producto tenía 'Oriental' por defecto */
+        /* Familia desde DUPE si el producto tenía 'Oriental' por defecto */
         const familiaDetectada = _familiaFromDupe(ap.Nombre || '');
         if(familiaDetectada && prod.familia === 'Oriental'){
           prod.familia = familiaDetectada;
@@ -4657,11 +4667,9 @@ async function syncAirtableImages(){
         }
 
         /* ── Sincronizar precios y ofertas desde Airtable ── */
-        const precioOriginal = Number(ap.Precio_Original);
-        let   precioOferta   = Number(ap.Precio_Oferta);
-        const enOferta       = Boolean(ap.En_Oferta);
+        let precioOferta = Number(ap.Precio_Oferta);
+        const enOferta   = Boolean(ap.En_Oferta);
 
-        /* Si En_Oferta y no hay Precio_Oferta explícito, calcular desde Etiqueta_Oferta "-XX%" */
         if(enOferta && !(precioOferta > 0 && precioOferta < precioOriginal) && ap.Etiqueta_Oferta){
           const m = String(ap.Etiqueta_Oferta).match(/^-(\d{1,2})%$/);
           if(m) precioOferta = Math.round(precioOriginal * (1 - Number(m[1]) / 100) * 10) / 10;
@@ -4684,31 +4692,38 @@ async function syncAirtableImages(){
           datosActualizados = true;
         }
 
+        /* ── Visibilidad: visible solo si nombre + precio + foto completos en Airtable ── */
+        if(precioOriginal > 0 && fotoUrl && ap.Nombre?.trim()){
+          prod.oculto = false;
+        }
+
         /* Actualizar data-es-top en cards ya renderizadas */
         document.querySelectorAll(`.card[data-slug="${CSS.escape(slug)}"]`).forEach(card => {
           card.dataset.esTop = prod.bestseller ? 'true' : 'false';
         });
       }
 
-      /* ── Sincronizar imágenes ── */
-      const fotos = Array.isArray(ap.Foto) ? ap.Foto : [];
-      if(!fotos.length) continue;
-      const foto = fotos[0];
-      const url = (foto.thumbnails?.large?.url) || foto.url;
-      if(!url) continue;
-      airtableImages[slug] = url;
-      newSlugs.push(slug);
+      /* ── Sincronizar imagen ── */
+      if(fotoUrl){
+        airtableImages[slug] = fotoUrl;
+        newSlugs.push(slug);
+      }
     }
 
-    /* Refrescar catálogo y ofertas si hubo cambios de datos */
-    if(datosActualizados){
-      renderizarOfertasAleatorias();
-      const shopEl = document.getElementById('shop');
-      if(shopEl?.classList.contains('open')) applyFilters();
-      /* Re-lanzar búsqueda si el usuario ya había escrito algo antes de que llegaran los productos */
-      const qActual = searchInput?.value?.trim();
-      if(qActual) runSearch(qActual);
-    }
+    /* Mostrar/ocultar cards del DOM según visibilidad calculada */
+    products.forEach(p => {
+      document.querySelectorAll(`.card[data-slug="${CSS.escape(p.slug)}"]`).forEach(card => {
+        card.style.display = p.oculto ? 'none' : '';
+      });
+    });
+    datosActualizados = true;
+
+    /* Refrescar catálogo y ofertas */
+    renderizarOfertasAleatorias();
+    const shopEl = document.getElementById('shop');
+    if(shopEl?.classList.contains('open')) applyFilters();
+    const qActual = searchInput?.value?.trim();
+    if(qActual) runSearch(qActual);
 
     console.log(`[VantSync] Con foto Airtable: ${newSlugs.length} | Auto-creados: ${products.filter(p=>p.orden===999).length}`);
     if(!newSlugs.length) return;
