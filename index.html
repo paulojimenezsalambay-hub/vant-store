@@ -4446,6 +4446,55 @@ const _MARCAS_CONOCIDAS = [
   'DIOR','YSL','PRADA','GUCCI','HERMES','BVLGARI','VALENTINO','ULRIC DE VARENS',
 ].sort((a,b) => b.length - a.length);
 
+/* Tabla DUPE → familia olfativa (claves ordenadas de más específica a más genérica) */
+const _FAMILIA_DUPE = [
+  ['creed aventus',      'Chipre'],
+  ['creed silver',       'Chipre'],
+  ['silver mountain',    'Chipre'],
+  ['sauvage elixir',     'Aromático'],
+  ['c dior sauvage',     'Aromático'],
+  ['dior sauvage',       'Aromático'],
+  ['chanel bleu',        'Aromático'],
+  ['bleu de chanel',     'Aromático'],
+  ['lv imagination',     'Aromático'],
+  ['invictus aqua',      'Acuático'],
+  ['invictus plat',      'Acuático'],
+  ['lv l immensite',     'Acuático'],
+  ['l immensite',        'Acuático'],
+  ['jpg scandal',        'Acuático'],
+  ['jpg le beau',        'Acuático'],
+  ['le beau',            'Acuático'],
+  ['baccarat',           'Oriental'],
+  ['marly althair',      'Oriental'],
+  ['jpg ultra male',     'Oriental'],
+  ['ultra male',         'Oriental'],
+  ['1 million',          'Oriental'],
+  ['homme intense',      'Oriental'],
+  ['god of fire',        'Floral'],
+  ['angel nova',         'Floral'],
+  ['g interdit',         'Floral'],
+  ['interdit',           'Floral'],
+  ['xerfojj',            'Floral'],
+  ['ysl libre',          'Floral'],
+  ['libre',              'Floral'],
+  ['bianco latte',       'Gourmand'],
+  ['la vie est belle',   'Gourmand'],
+  ['sauvage',            'Aromático'],
+  ['aventus',            'Chipre'],
+  ['invictus',           'Acuático'],
+  ['althair',            'Oriental'],
+];
+
+function _familiaFromDupe(nombreRaw){
+  const m = nombreRaw.match(/\(DUPE\s+([^)]+)\)/i);
+  if(!m) return null;
+  const t = m[1].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ');
+  for(const [key, fam] of _FAMILIA_DUPE){
+    if(t.includes(key)) return fam;
+  }
+  return null;
+}
+
 /* Parsea un nombre largo de Airtable y extrae tipo, ml, genero, marca y nombre corto */
 function _parsarProductoAirtable(ap){
   const raw  = String(ap.Nombre || '').trim();
@@ -4490,7 +4539,7 @@ function _parsarProductoAirtable(ap){
     nombre:  (corto && corto.toUpperCase() !== marca.toUpperCase()) ? corto : raw,
     marca,
     tipo,
-    familia: 'Oriental',
+    familia: _familiaFromDupe(raw) || 'Oriental',
     ml,
     genero,
     precio:  Number(ap.Precio_Original) || 0,
@@ -4592,6 +4641,12 @@ async function syncAirtableImages(){
       /* ── Sincronizar datos desde Airtable ── */
       const prod = products.find(p => p.slug === slug);
       if(prod){
+        /* Actualizar familia si el nombre de Airtable tiene DUPE y el producto tenía 'Oriental' por defecto */
+        const familiaDetectada = _familiaFromDupe(ap.Nombre || '');
+        if(familiaDetectada && prod.familia === 'Oriental'){
+          prod.familia = familiaDetectada;
+          datosActualizados = true;
+        }
         if(ap.Es_Top !== undefined){
           prod.bestseller = Boolean(ap.Es_Top);
           datosActualizados = true;
