@@ -3536,20 +3536,21 @@ renderTiles();
 
 /* Rotación dinámica de tiles — cambia el perfume mostrado cada ~3.5 s */
 (function(){
-  const tilePools = [
-    products.filter(p => !p.oculto && p.genero === 'Mujer'),
-    products.filter(p => !p.oculto && p.genero === 'Hombre'),
-    products.filter(p => !p.oculto && p.bestseller),
-    products.filter(p => !p.oculto && p.oferta)
-  ];
-  /* Mezclamos cada pool para que el orden sea distinto cada visita */
-  tilePools.forEach(pool => pool.sort(() => Math.random() - 0.5));
+  /* Recalcular en cada rotación para respetar oculto tras el sync */
+  function getPool(i){
+    return [
+      products.filter(p => !p.oculto && p.genero === 'Mujer'),
+      products.filter(p => !p.oculto && p.genero === 'Hombre'),
+      products.filter(p => !p.oculto && p.bestseller),
+      products.filter(p => !p.oculto && p.oferta)
+    ][i] || [];
+  }
   const counters = [0, 0, 0, 0];
 
   function rotateTile(i){
     const tile = document.querySelector(`[data-tile="${i}"]`);
     if(!tile) return;
-    const pool = tilePools[i];
+    const pool = getPool(i);
     if(!pool || pool.length < 2) return;
 
     counters[i] = (counters[i] + 1) % pool.length;
@@ -3576,8 +3577,7 @@ renderTiles();
   }
 
   /* Cada tile rota cada 3.5 s, escalonado 900 ms entre sí */
-  tilePools.forEach((pool, i) => {
-    if(pool.length < 2) return;
+  [0, 1, 2, 3].forEach(i => {
     setTimeout(() => { setInterval(() => rotateTile(i), 3500); }, i * 900);
   });
 })();
