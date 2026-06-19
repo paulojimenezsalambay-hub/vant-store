@@ -3218,14 +3218,12 @@ function waLink(p){
     : `$${p.precio}`;
 
   const msg = [
-    'Buenas! Quisiera comprar en Vant Store 🌟',
+    '¡Hola, Vant Store! 👋 Vi este perfume en su página web y me encantó:',
     '',
-    `✨ ${p.nombre}`,
-    `   Marca: ${p.marca}`,
-    `   Tamaño: ${p.ml}`,
-    `   Precio: ${precio}`,
+    `🛒 ${p.nombre} (${p.marca} - ${p.ml})`,
+    `💰 Precio: ${precio}`,
     '',
-    '¿Me puedes enviar los datos bancarios para coordinar el pago y la entrega? 🙌'
+    'Quisiera concretar la compra, ¿me comparten las cuentas bancarias y los detalles para la entrega? Muchas gracias. ✨'
   ].join('\n');
 
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
