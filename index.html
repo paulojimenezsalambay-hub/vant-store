@@ -4666,13 +4666,24 @@ async function syncAirtableImages(){
           datosActualizados = true;
         }
 
+        /* ── Sincronizar ml desde nombre de Airtable ── */
+        const mlMatch = (ap.Nombre || '').match(/(\d+)\s*ML/i);
+        if(mlMatch){
+          const mlAt = mlMatch[1] + ' ml';
+          if(prod.ml !== mlAt){ prod.ml = mlAt; datosActualizados = true; }
+        }
+
         /* ── Sincronizar precios y ofertas desde Airtable ── */
         let precioOferta = Number(ap.Precio_Oferta);
-        const enOferta   = Boolean(ap.En_Oferta);
+        let enOferta     = Boolean(ap.En_Oferta);
 
-        if(enOferta && !(precioOferta > 0 && precioOferta < precioOriginal) && ap.Etiqueta_Oferta){
+        /* Si Etiqueta_Oferta tiene "-XX%" se aplica aunque no esté marcado En_Oferta */
+        if(!(precioOferta > 0 && precioOferta < precioOriginal) && ap.Etiqueta_Oferta){
           const m = String(ap.Etiqueta_Oferta).match(/^-(\d{1,2})%$/);
-          if(m) precioOferta = Math.round(precioOriginal * (1 - Number(m[1]) / 100) * 10) / 10;
+          if(m){
+            precioOferta = Math.round(precioOriginal * (1 - Number(m[1]) / 100) * 10) / 10;
+            enOferta = true;
+          }
         }
 
         if(precioOriginal > 0){
