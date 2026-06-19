@@ -3412,15 +3412,15 @@ function buildCartMessage(){
 
   /* Bloque legible para el usuario */
   const lineas = [
-    'Buenas! Quisiera comprar en Vant Store 🌟',
+    '¡Hola, Vant Store! 👋 Vi estos perfumes en su página web y me encantaron:',
     '',
     ...items.map(i =>
-      `✨ ${i.nombre}\n   Marca: ${i.marca} | Tamaño: ${i.ml}${i.cantidad > 1 ? ` | Cantidad: ${i.cantidad}` : ''}\n   Precio: $${i.subtotal}`
+      `🛒 ${i.nombre} (${i.marca} - ${i.ml})${i.cantidad > 1 ? ` x${i.cantidad}` : ''}\n💰 Precio: $${i.subtotal}`
     ),
     '',
     `💰 Total: $${total}`,
     '',
-    '¿Me puedes enviar los datos bancarios para coordinar el pago y la entrega? 🙌'
+    'Quisiera concretar la compra, ¿me comparten las cuentas bancarias y los detalles para la entrega? Muchas gracias. ✨'
   ];
   return lineas.join('\n');
 }
