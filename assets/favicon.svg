@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Fondo negro con esquinas redondeadas -->
+  <rect width="512" height="512" rx="100" ry="100" fill="#0a0a0a"/>
+
+  <!-- VANT: V y N T en blanco, A en dorado -->
+  <text x="256" y="248" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="178" font-weight="bold" letter-spacing="8" fill="white">
+    <tspan>V</tspan><tspan fill="#c9a84c">A</tspan><tspan>NT</tspan>
+  </text>
+
+  <!-- Línea dorada -->
+  <line x1="80" y1="292" x2="432" y2="292" stroke="#c9a84c" stroke-width="5"/>
+
+  <!-- STORE en blanco, pequeño, espaciado -->
+  <text x="256" y="370" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="80" font-weight="normal" letter-spacing="22" fill="white">STORE</text>
+</svg>
