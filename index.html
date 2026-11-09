@@ -89,6 +89,9 @@
 
 <!-- Precarga de la imagen principal (LCP): empieza a bajar antes de leer el CSS -->
 <link rel="preload" as="image" href="assets/hero-sauvage.webp?v=1" type="image/webp" fetchpriority="high">
+<!-- Preconexión al Worker del catálogo (fetch CORS → crossorigin) y al host de fotos de Airtable -->
+<link rel="preconnect" href="https://vant-productos.paulojimenezsalambay.workers.dev" crossorigin>
+<link rel="preconnect" href="https://v5.airtableusercontent.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
