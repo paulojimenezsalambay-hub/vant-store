@@ -87,6 +87,8 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
+<!-- Precarga de la imagen principal (LCP): empieza a bajar antes de leer el CSS -->
+<link rel="preload" as="image" href="assets/hero-sauvage.webp?v=1" type="image/webp" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
@@ -2332,6 +2334,7 @@ img { max-width: 100%; height: auto; }
       <img
         src="assets/hero-sauvage.webp?v=1"
         width="1254" height="1254"
+        fetchpriority="high"
         decoding="async"
         alt="Fragancia premium VANT Store"
         class="hero-static-img"
