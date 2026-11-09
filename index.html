@@ -797,6 +797,26 @@ section { padding: 120px 0; position: relative; }
   filter: drop-shadow(0 18px 28px rgba(200,169,107,.11));
 }
 .card .body { padding: 20px 22px 24px; border-top: 1px solid rgba(200,169,107,0.08); position: relative; }
+
+/* ── SKELETON LOADERS (mientras llega el catálogo de Airtable) ── */
+.sk {
+  display: block;
+  background: linear-gradient(90deg, rgba(200,169,107,0.05) 0%, rgba(200,169,107,0.13) 50%, rgba(200,169,107,0.05) 100%);
+  background-size: 200% 100%;
+  animation: skShimmer 1.4s ease-in-out infinite;
+  border-radius: 2px;
+}
+@keyframes skShimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.card.sk-card { cursor: default; pointer-events: none; }
+.card.sk-card:hover { transform: none; box-shadow: none; }
+.sk-card .img-area { display: flex; align-items: center; justify-content: center; }
+.sk-bottle { width: 42%; height: 72%; margin: auto; border-radius: 10px 10px 4px 4px; }
+.sk-line { height: 10px; margin-bottom: 10px; }
+.sk-line.w40 { width: 40%; } .sk-line.w60 { width: 60%; } .sk-line.w80 { width: 80%; }
+.sk-line.tall { height: 16px; }
+.tile-preview .sk-bottle { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 34%; height: 60%; }
+.tile-best .sk-line { display: inline-block; width: 140px; height: 9px; margin: 0; vertical-align: middle; }
+@media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
 .card .brand-tag { font-size: 9px; letter-spacing: 0.48em; color: var(--gold); text-transform: uppercase; }
 .card h3 {
   font-family: 'Bodoni Moda', serif; font-weight: 400;
@@ -3498,6 +3518,20 @@ function cardHTML(p){
    ============================================================ */
 function randFrom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 
+/* Skeleton loaders: hasta que llega el primer sync de Airtable (o falla / timeout)
+   se pintan tarjetas grises en vez de los productos hardcodeados, que luego se ocultarían. */
+let catalogoListo = false;
+function skeletonCardHTML(){
+  return `<article class="card sk-card" aria-hidden="true">
+    <div class="img-area"><span class="sk sk-bottle"></span></div>
+    <div class="body">
+      <span class="sk sk-line w40"></span>
+      <span class="sk sk-line tall w80"></span>
+      <span class="sk sk-line w60"></span>
+    </div>
+  </article>`;
+}
+
 function renderTiles(){
   const tilePools = [
     products.filter(p => !p.oculto && p.genero === 'Mujer'),
@@ -3516,16 +3550,16 @@ function renderTiles(){
   if(!grid) return;
   grid.innerHTML = tileConfig.map((c, i) => {
     const pool = tilePools[i];
-    const p = pool.length ? randFrom(pool) : null;
+    const p = (catalogoListo && pool.length) ? randFrom(pool) : null;
     const filterAttr = c.filter ? `data-filter='${JSON.stringify(c.filter)}'` : '';
     return `<a class="tile" data-jump="${c.jump}" ${filterAttr} data-tile="${i}">
       <div class="tile-bg"></div>
-      <div class="tile-preview">${p ? bottleHTML(p) : ''}</div>
+      <div class="tile-preview">${p ? bottleHTML(p) : (catalogoListo ? '' : '<span class="sk sk-bottle"></span>')}</div>
       <div class="tile-orn">${c.orn}</div>
       <div class="tile-content">
         <span class="tag">${c.tag}</span>
         <h3>${c.label}</h3>
-        <p class="tile-best">${p ? escapeHTML(p.marca) + ' · <em>' + escapeHTML(p.nombre) + '</em>' : ''}</p>
+        <p class="tile-best">${p ? escapeHTML(p.marca) + ' · <em>' + escapeHTML(p.nombre) + '</em>' : (catalogoListo ? '' : '<span class="sk sk-line"></span>')}</p>
       </div>
       <span class="arrow">→</span>
     </a>`;
@@ -3552,7 +3586,7 @@ renderTiles();
 
   function rotateTile(i){
     const tile = document.querySelector(`[data-tile="${i}"]`);
-    if(!tile) return;
+    if(!tile || !catalogoListo) return;
     const pool = getPool(i);
     if(!pool || pool.length < 2) return;
 
@@ -3591,6 +3625,7 @@ renderTiles();
 function renderizarOfertasAleatorias(){
   const grid = document.getElementById('ofertasGrid');
   if(!grid) return;
+  if(!catalogoListo){ grid.innerHTML = skeletonCardHTML().repeat(4); return; }
   const seleccion = products.filter(p => !p.oculto && p.oferta)
     .sort(() => Math.random() - 0.5)
     .slice(0, 4);
@@ -3755,6 +3790,14 @@ function renderPage(){
 
   /* Clase visual que indica modo 'Más vendidos' */
   catGrid.classList.toggle('is-filtered', isBestseller);
+
+  /* Catálogo aún cargando → skeletons */
+  if(!catalogoListo){
+    catGrid.innerHTML = skeletonCardHTML().repeat(6);
+    catCount.textContent = 'Cargando…';
+    shopPagination.innerHTML = '';
+    return;
+  }
 
   /* Estado vacío */
   if(total === 0){
@@ -4728,7 +4771,8 @@ async function syncAirtableImages(){
     });
     datosActualizados = true;
 
-    /* Refrescar catálogo y ofertas */
+    /* Refrescar catálogo y ofertas (fin de skeletons) */
+    catalogoListo = true;
     renderizarOfertasAleatorias();
     renderTiles();
     const shopEl = document.getElementById('shop');
@@ -4952,7 +4996,16 @@ const io = new IntersectionObserver(entries=>{
 document.querySelectorAll('.reveal, .stagger').forEach(el=>io.observe(el));
 
 /* Sincronizar datos desde Airtable al arrancar y cada 5 minutos */
-syncAirtableImages();
+/* Si el primer sync falla o tarda más de 8 s, quitar skeletons y mostrar lo que haya */
+function marcarCatalogoListo(){
+  if(catalogoListo) return;
+  catalogoListo = true;
+  renderizarOfertasAleatorias();
+  renderTiles();
+  if(document.getElementById('shop')?.classList.contains('open')) applyFilters();
+}
+syncAirtableImages().finally(marcarCatalogoListo);
+setTimeout(marcarCatalogoListo, 8000);
 setInterval(syncAirtableImages, 5 * 60 * 1000);
 </script>
 
