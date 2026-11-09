@@ -11,9 +11,12 @@
  *   ✅ Añade Vary: Origin para que caches sirvan la respuesta correcta
  *   ✅ Añade X-Content-Type-Options y Access-Control-Max-Age
  *   ✅ Lista blanca extendida: www, subdominio preview de Pages, localhost
+ *   ✅ Límite de 60 peticiones/minuto por IP → 429 (binding LIMITADOR)
  *
  * Variables de entorno (Secrets):
  *   AIRTABLE_TOKEN  — Personal Access Token de Airtable
+ * Bindings (wrangler.toml):
+ *   LIMITADOR       — Rate Limiting de Workers (60 req / 60 s)
  */
 
 const AIRTABLE_BASE  = 'appkHx2y58OuG1UuF';
@@ -66,6 +69,19 @@ export default {
           'X-Content-Type-Options': 'nosniff',
         }
       });
+    }
+
+    /* ── LÍMITE: 60 peticiones/minuto por IP (binding LIMITADOR) ── */
+    if (env.LIMITADOR) {
+      const ip = request.headers.get('CF-Connecting-IP') || 'sin-ip';
+      const { success } = await env.LIMITADOR.limit({ key: ip });      if (!success) {
+        const r = corsResponse(
+          JSON.stringify({ error: 'Demasiadas peticiones, inténtalo en un minuto' }),
+          429, 'application/json', origin
+        );
+        r.headers.set('Retry-After', '60');
+        return r;
+      }
     }
 
     if (!env.AIRTABLE_TOKEN) {

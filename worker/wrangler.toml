@@ -7,3 +7,12 @@ compatibility_date = "2024-01-01"
 
 # El AIRTABLE_TOKEN se añade como Secret cifrado:
 # npx wrangler secret put AIRTABLE_TOKEN
+
+# Límite de peticiones por IP: 60 cada 60 segundos (period solo admite 10 o 60)
+[[ratelimits]]
+name = "LIMITADOR"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60
