@@ -2156,6 +2156,28 @@ img { max-width: 100%; height: auto; }
   .tile h3             { font-size: 22px; }
   .tile                { padding: 14px; }
 }
+
+/* ============================================================
+   REDUCIR MOVIMIENTO — usuarios con "reducir animaciones" activado
+   en el sistema: sin desplazamientos, parpadeos ni scroll suave.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: .01ms !important;
+    transition-delay: 0s !important;
+  }
+  /* Contenido visible desde el principio, sin "aparecer subiendo" */
+  .reveal, .stagger > * { opacity: 1 !important; transform: none !important; }
+  /* Marquesina de marcas quieta; se puede desplazar a mano */
+  .marquee { overflow-x: auto; }
+  .marquee-track { animation: none !important; }
+  /* Tarjetas sin elevarse ni ampliar el frasco al pasar el ratón */
+  .card:hover, .card:hover .img-area .bottle-host { transform: none !important; }
+}
 </style>
 </head>
 <body>
@@ -3590,6 +3612,10 @@ function cardHTML(p){
    ============================================================ */
 function randFrom(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
 
+/* Preferencia del sistema "reducir movimiento" */
+const REDUCE_MOTION = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const SCROLL_BEHAVIOR = REDUCE_MOTION ? 'auto' : 'smooth';
+
 /* Skeleton loaders: hasta que llega el primer sync de Airtable (o falla / timeout)
    se pintan tarjetas grises en vez de los productos hardcodeados, que luego se ocultarían. */
 let catalogoListo = false;
@@ -3685,7 +3711,9 @@ renderTiles();
     }, 370);
   }
 
-  /* Cada tile rota cada 3.5 s, escalonado 900 ms entre sí */
+  /* Cada tile rota cada 3.5 s, escalonado 900 ms entre sí.
+     Con "reducir movimiento" no se rota: el contenido no cambia solo. */
+  if(REDUCE_MOTION) return;
   [0, 1, 2, 3].forEach(i => {
     setTimeout(() => { setInterval(() => rotateTile(i), 3500); }, i * 900);
   });
@@ -3908,10 +3936,10 @@ function renderPagination(totalPages){
     <button id="pagNext" ${shopPage===totalPages?'disabled':''}>Siguiente →</button>
   `;
   shopPagination.querySelector('#pagPrev').addEventListener('click',()=>{
-    if(shopPage > 1){ shopPage--; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:'smooth'}); }
+    if(shopPage > 1){ shopPage--; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:SCROLL_BEHAVIOR}); }
   });
   shopPagination.querySelector('#pagNext').addEventListener('click',()=>{
-    if(shopPage < totalPages){ shopPage++; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:'smooth'}); }
+    if(shopPage < totalPages){ shopPage++; renderPage(); window.scrollTo({top: document.getElementById('shop').offsetTop - 80, behavior:SCROLL_BEHAVIOR}); }
   });
 }
 
@@ -4131,7 +4159,7 @@ function activarFiltroBestsellers(){
     if(ancla && shopEl){
       /* El shop es un overlay con scroll propio: calculamos offset relativo */
       const offsetTop = ancla.offsetTop - 80;   /* 80 = altura shop-bar */
-      shopEl.scrollTo({ top: Math.max(0, offsetTop), behavior: 'smooth' });
+      shopEl.scrollTo({ top: Math.max(0, offsetTop), behavior: SCROLL_BEHAVIOR });
     } else if(shopEl){
       shopEl.scrollTop = 0;
     }
