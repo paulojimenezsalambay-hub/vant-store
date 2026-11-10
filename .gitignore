@@ -28,3 +28,15 @@ assets/tiles_*
 
 # Base de datos local
 *.sqlite
+
+# Copia antigua de la web (no la usa Cloudflare Pages)
+dist/
+
+# Basura del sistema
+.DS_Store
+
+# Informes con datos del negocio (no publicar)
+informes/
+
+# Documentos de traspaso entre sesiones
+HANDOFF-CLAUDE-CODE.md
