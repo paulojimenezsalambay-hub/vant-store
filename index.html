@@ -2172,6 +2172,10 @@ img { max-width: 100%; height: auto; }
   .tile                { padding: 14px; }
 }
 
+/* Foco visible al navegar con teclado (no aparece al hacer clic) */
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.card:focus-visible { outline-offset: -2px; }
+
 /* ============================================================
    REDUCIR MOVIMIENTO — usuarios con "reducir animaciones" activado
    en el sistema: sin desplazamientos, parpadeos ni scroll suave.
@@ -2346,14 +2350,14 @@ img { max-width: 100%; height: auto; }
       <a class="cart-toggle" id="cartToggleNav" aria-label="Carrito">
         🛒<span class="badge">0</span>
       </a>
-      <div class="burger" id="burger"><span></span><span></span><span></span></div>
+      <div class="burger" id="burger" role="button" tabindex="0" aria-label="Abrir menú" aria-controls="drawer" aria-expanded="false"><span></span><span></span><span></span></div>
     </div>
   </div>
 </nav>
 
 <div class="drawer-overlay" id="overlay"></div>
 <aside class="drawer" id="drawer">
-  <button class="drawer-close" id="drawerClose">×</button>
+  <button class="drawer-close" id="drawerClose" aria-label="Cerrar menú">×</button>
   <h5>Categorías</h5>
   <a data-jump="coleccion" data-filter='{"genero":"Mujer"}'>Mujer</a>
   <a data-jump="coleccion" data-filter='{"genero":"Hombre"}'>Hombre</a>
@@ -5102,6 +5106,99 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 
 restoreNavState();
+
+/* ============================================================
+   ACCESIBILIDAD — teclado y ventanas (diálogos)
+   ============================================================ */
+(function(){
+  /* 1) Elementos clicables que no son <button> ni <a href>: alcanzables con Tab
+        y activables con Enter / Espacio */
+  const CLICABLES = 'a:not([href]), .card:not(.sk-card), .tile';
+  function hacerAccesibles(){
+    document.querySelectorAll(CLICABLES).forEach(el => {
+      if(el.closest('.marquee')) return;            /* marcas: ya están en los filtros */
+      if(!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+      if(!el.hasAttribute('role')) el.setAttribute('role', 'button');
+    });
+  }
+  hacerAccesibles();
+  /* El observador ya agrupa los cambios de cada render en una sola llamada */
+  new MutationObserver(hacerAccesibles).observe(document.body, { childList: true, subtree: true });
+
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const el = e.target;
+    if(!el || el.getAttribute('role') !== 'button') return;
+    if(/^(BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) return;
+    e.preventDefault();
+    el.click();
+  });
+
+  /* 2) Ventanas: rol de diálogo, foco dentro al abrir, Tab atrapado y foco
+        devuelto al botón que la abrió al cerrar */
+  const DIALOGOS = [
+    { id: 'drawer',             cls: 'open',    label: 'Menú' },
+    { id: 'shop',               cls: 'open',    label: 'Catálogo' },
+    { id: 'searchOverlay',      cls: 'open',    label: 'Buscador' },
+    { id: 'modal',              cls: 'open',    label: 'Ficha del perfume' },
+    { id: 'cartDrawer',         cls: 'open',    label: 'Carrito' },
+    { id: 'newsletterModal',    cls: 'open' },
+    { id: 'modal-confirmacion', cls: 'visible' }
+  ];
+  const FOCUSABLES = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
+  const abiertos = [];   /* pila: el último es el de arriba */
+
+  function visibles(d){
+    return [...d.querySelectorAll(FOCUSABLES)].filter(el => el.offsetParent !== null || el === document.activeElement);
+  }
+
+  DIALOGOS.forEach(cfg => {
+    const d = document.getElementById(cfg.id);
+    if(!d) return;
+    if(!d.hasAttribute('role')) d.setAttribute('role', 'dialog');
+    if(!d.hasAttribute('aria-modal')) d.setAttribute('aria-modal', 'true');
+    if(cfg.label && !d.hasAttribute('aria-label') && !d.hasAttribute('aria-labelledby')) d.setAttribute('aria-label', cfg.label);
+    let estaba = d.classList.contains(cfg.cls);
+    new MutationObserver(() => {
+      const esta = d.classList.contains(cfg.cls);
+      if(esta === estaba) return;
+      estaba = esta;
+      if(cfg.id === 'drawer') document.getElementById('burger')?.setAttribute('aria-expanded', String(esta));
+      if(esta){
+        abiertos.push({ d, previo: document.activeElement });
+        /* esperar a que se pinte (display:none → visible) */
+        setTimeout(() => {
+          if(d.contains(document.activeElement)) return;
+          const f = visibles(d);
+          const destino = f.find(el => /close|cerrar|volver/i.test((el.className||'') + ' ' + (el.getAttribute('aria-label')||''))) || f[0];
+          if(destino) destino.focus({ preventScroll: true });
+          else { d.setAttribute('tabindex', '-1'); d.focus({ preventScroll: true }); }
+        }, 60);
+      } else {
+        const i = abiertos.findIndex(x => x.d === d);
+        if(i === -1) return;
+        const { previo } = abiertos.splice(i, 1)[0];
+        if(i === abiertos.length && previo && document.contains(previo) && previo.offsetParent !== null){
+          previo.focus({ preventScroll: true });
+        }
+      }
+    }).observe(d, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  document.addEventListener('keydown', e => {
+    const top = abiertos[abiertos.length - 1];
+    if(!top) return;
+    /* Escape en el menú móvil (el resto de ventanas ya lo gestiona) */
+    if(e.key === 'Escape' && top.d.id === 'drawer'){ closeDrawer(); return; }
+    if(e.key !== 'Tab') return;
+    const f = visibles(top.d);
+    if(!f.length){ e.preventDefault(); return; }
+    const primero = f[0], ultimo = f[f.length - 1];
+    if(!top.d.contains(document.activeElement)){ e.preventDefault(); primero.focus(); }
+    else if(e.shiftKey && document.activeElement === primero){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primero.focus(); }
+  });
+})();
 
 /* ============================================================
    REVEALS
