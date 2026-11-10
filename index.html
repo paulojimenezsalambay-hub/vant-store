@@ -2404,8 +2404,6 @@ img { max-width: 100%; height: auto; }
         <a class="btn btn-gold" data-jump="coleccion"><span>Ver colección</span></a>
       </div>
       <div class="hero-trust">
-        <span>★ 4,9 / 5</span>
-        <span class="dot">◆</span>
         <span>Originales 100%</span>
         <span class="dot">◆</span>
         <span>Envío 24–48 h</span>
@@ -2516,8 +2514,7 @@ img { max-width: 100%; height: auto; }
         Perfumería de autor. Fragancias que dejan huella.
       </p>
       <p style="color: var(--bone-soft); font-size: 12px; margin-top: 18px; line-height: 1.8;">
-        📞 <a id="footPhone" target="_blank" rel="noopener noreferrer" style="color:var(--bone-soft)">Hablar por WhatsApp</a><br>
-        ✉ <a id="footEmail" style="color:var(--bone-soft)">Escríbenos</a>
+        📞 <a id="footPhone" target="_blank" rel="noopener noreferrer" style="color:var(--bone-soft)">Hablar por WhatsApp</a>
       </p>
     </div>
     <div>
@@ -2549,8 +2546,6 @@ img { max-width: 100%; height: auto; }
       <h4>Síguenos</h4>
       <ul>
         <li><a href="https://instagram.com/vant.store" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-        <li><a>TikTok</a></li>
-        <li><a>Facebook</a></li>
       </ul>
     </div>
   </div>
@@ -3134,7 +3129,6 @@ function bottleSVG(p){
    Formato internacional, solo dígitos (sin +, sin espacios).
    ============================================================ */
 const WHATSAPP_NUMBER = '593969933866';
-const CONTACT_EMAIL   = 'hola@vantstore.com';
 
 /* ============================================================
    HELPERS DE SEGURIDAD (anti-XSS / anti-inyección)
@@ -3351,8 +3345,6 @@ function waLinkGeneral(text){
     const el = document.getElementById(id);
     if(el) el.href = link;
   });
-  const email = document.getElementById('footEmail');
-  if(email) email.href = `mailto:${CONTACT_EMAIL}?subject=Consulta`;
 })();
 
 /* ============================================================
