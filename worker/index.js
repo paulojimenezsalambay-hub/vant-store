@@ -14,6 +14,8 @@
  *   ✅ Límite de 60 peticiones/minuto por IP → 429 (binding LIMITADOR)
  *   ✅ Caché de 30 s del catálogo: memoria + Cache API del centro de datos
  *      (cabecera X-Cache: HIT / HIT-COLO / MISS). Errores nunca se guardan.
+ *   ✅ /img/<ID_Producto>: foto pública con URL estable (caché 1 día),
+ *      para Schema.org / Google Merchant. No exige Origin.
  *
  * Variables de entorno (Secrets):
  *   AIRTABLE_TOKEN  — Personal Access Token de Airtable
@@ -60,6 +62,18 @@ export default {
     /* ── Solo GET ── */
     if (request.method !== 'GET') {
       return corsResponse('Method not allowed', 405, 'text/plain', origin);
+    }
+
+    /* ── Fotos públicas con URL estable: /img/<ID_Producto>
+          Para Google (Schema.org) y redes: las URLs de Airtable caducan,
+          estas no. No requiere Origin (las imágenes son públicas). ── */
+    const mImg = new URL(request.url).pathname.match(/^\/img\/([a-z0-9-]{1,40})(?:\.(?:jpg|jpeg|png|webp))?$/i);
+    if (mImg) {
+      try {
+        return await servirImagen(mImg[1].toLowerCase(), request, env, ctx);
+      } catch (e) {
+        return new Response('Error', { status: 502, headers: { 'Cache-Control': 'no-store' } });
+      }
     }
 
     /* ── BLOQUEO: toda petición sin Origin válido ── */
@@ -157,6 +171,48 @@ export default {
 const CACHE_TTL_MS = 30 * 1000;
 let CACHE    = { body: null, ts: 0 };
 let EN_CURSO = null;
+
+/* Sirve la foto actual de un producto desde Airtable, guardada 1 día en la
+   caché de Cloudflare. Solo descarga de hosts de Airtable. */
+const HOSTS_FOTOS = /(^|\.)airtableusercontent\.com$|^dl\.airtable\.com$/i;
+const IMG_TTL_S   = 86400;
+
+async function servirImagen(id, request, env, ctx) {
+  const cache = caches.default;
+  const clave = new Request(new URL(`/img/${id}`, request.url).toString());
+  const guardada = await cache.match(clave);
+  if (guardada) return guardada;
+
+  if (!env.AIRTABLE_TOKEN) return new Response('No configurado', { status: 500 });
+
+  let body = (CACHE.body && Date.now() - CACHE.ts < CACHE_TTL_MS) ? CACHE.body : null;
+  if (!body) {
+    if (!EN_CURSO) EN_CURSO = cargarCatalogo(env).finally(() => { EN_CURSO = null; });
+    body = await EN_CURSO;
+    CACHE = { body, ts: Date.now() };
+  }
+
+  const p    = JSON.parse(body)[id];
+  const foto = p && Array.isArray(p.Foto) ? p.Foto[0] : null;
+  const src  = foto && ((foto.thumbnails && foto.thumbnails.large && foto.thumbnails.large.url) || foto.url);
+  if (!src || !HOSTS_FOTOS.test(new URL(src).hostname)) {
+    return new Response('Not found', { status: 404, headers: { 'Cache-Control': 'public, max-age=300' } });
+  }
+
+  const r = await fetch(src);
+  if (!r.ok) return new Response('Upstream error', { status: 502, headers: { 'Cache-Control': 'no-store' } });
+
+  const res = new Response(r.body, {
+    headers: {
+      'Content-Type':                r.headers.get('Content-Type') || 'image/png',
+      'Cache-Control':               `public, max-age=${IMG_TTL_S}`,
+      'Access-Control-Allow-Origin': '*',
+      'X-Content-Type-Options':      'nosniff',
+    }
+  });
+  ctx.waitUntil(cache.put(clave, res.clone()).catch(() => {}));
+  return res;
+}
 
 function conCache(res, estado) {
   res.headers.set('X-Cache', estado);

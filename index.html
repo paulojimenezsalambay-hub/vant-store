@@ -71,7 +71,13 @@
         "url": "https://wa.me/593969933866",
         "availableLanguage": "es"
       },
-      "sameAs": ["https://instagram.com/vant.store"]
+      "sameAs": ["https://instagram.com/vant.store"],
+      "hasMerchantReturnPolicy": {
+        "@type": "MerchantReturnPolicy",
+        "applicableCountry": "EC",
+        "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+        "merchantReturnDays": 30
+      }
     },
     {
       "@type": "WebSite",
@@ -4695,6 +4701,7 @@ function _parsarProductoAirtable(ap){
 
   return {
     slug:    String(ap.ID_Producto || '').trim() || 'auto-' + _normName(raw).replace(/\s+/g,'-').slice(0,25),
+    atId:    String(ap.ID_Producto || '').trim() || undefined,
     nombre:  (corto && corto.toUpperCase() !== marca.toUpperCase()) ? corto : raw,
     marca,
     tipo,
@@ -4807,6 +4814,8 @@ async function syncAirtableImages(){
       /* ── Sincronizar datos desde Airtable ── */
       const prod = products.find(p => p.slug === slug);
       if(prod){
+        /* ID de Airtable: lo usa el Schema.org para la foto estable del Worker */
+        if(ap.ID_Producto) prod.atId = String(ap.ID_Producto).trim();
         /* Familia desde DUPE si el producto tenía 'Oriental' por defecto */
         const familiaDetectada = _familiaFromDupe(ap.Nombre || '');
         if(familiaDetectada && prod.familia === 'Oriental'){
@@ -5201,11 +5210,33 @@ document.querySelectorAll('.reveal, .stagger').forEach(el=>io.observe(el));
 
 /* Sincronizar datos desde Airtable al arrancar y cada 5 minutos */
 /* Schema.org de productos (JSON-LD) con los productos visibles y con precio.
-   Sin imagen (las URLs de Airtable caducan) ni disponibilidad (el stock de
-   Airtable no se mantiene): solo datos reales del catálogo. */
+   Datos confirmados por el dueño (2026-11-11):
+   - Todos los perfumes visibles están en stock.
+   - Envío gratis en 24–48 h a todo Ecuador a partir de 49 $ (por debajo el
+     coste varía → sin shippingDetails en esos productos).
+   - Devolución 30 días (no se sabe quién paga la vuelta → sin returnFees).
+   Foto: URL estable del Worker (/img/<ID_Producto>); las de Airtable caducan. */
+const IMG_BASE = 'https://vant-productos.paulojimenezsalambay.workers.dev/img/';
+const ENVIO_GRATIS_DESDE = 49;
+const SCHEMA_DEVOLUCION = {
+  '@type': 'MerchantReturnPolicy',
+  applicableCountry: 'EC',
+  returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+  merchantReturnDays: 30
+};
+const SCHEMA_ENVIO_GRATIS = {
+  '@type': 'OfferShippingDetails',
+  shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'USD' },
+  shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'EC' },
+  deliveryTime: {
+    '@type': 'ShippingDeliveryTime',
+    handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 0, unitCode: 'DAY' },
+    transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' }
+  }
+};
 function actualizarSchemaProductos(){
   try {
-    const visibles = products.filter(p => !p.oculto && Number(p.precio) > 0 && p.nombre);
+    const visibles = products.filter(p => !p.oculto && Number(p.precio) > 0 && p.nombre && p.atId);
     const data = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
@@ -5217,6 +5248,7 @@ function actualizarSchemaProductos(){
         item: {
           '@type': 'Product',
           name: p.nombre,
+          image: IMG_BASE + encodeURIComponent(p.atId),
           brand: p.marca ? { '@type': 'Brand', name: p.marca } : undefined,
           category: 'Perfume',
           description: [p.tipo, p.ml, p.genero].filter(Boolean).join(' · ') || undefined,
@@ -5224,8 +5256,12 @@ function actualizarSchemaProductos(){
             '@type': 'Offer',
             price: Number(p.precio).toFixed(2),
             priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+            itemCondition: 'https://schema.org/NewCondition',
             url: 'https://vant-store.com/',
-            seller: { '@id': 'https://vant-store.com/#tienda' }
+            seller: { '@id': 'https://vant-store.com/#tienda' },
+            hasMerchantReturnPolicy: SCHEMA_DEVOLUCION,
+            shippingDetails: Number(p.precio) >= ENVIO_GRATIS_DESDE ? SCHEMA_ENVIO_GRATIS : undefined
           }
         }
       }))
